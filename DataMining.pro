@@ -6,17 +6,17 @@
 
 QT       += core
 
-QT       -= gui
-
 TARGET = DataMining
-CONFIG   += console
 CONFIG   -= app_bundle
+CONFIG   += c++11
 
 TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    Data/Data.cpp
+    Data/Data.cpp \
+    Data/DataLoader.cpp
 
 HEADERS += \
-    Data/Data.h
+    Data/Data.h \
+    Data/DataLoader.h
