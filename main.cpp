@@ -10,6 +10,7 @@ int main()
 {
     std::shared_ptr<DataLoader> dataLoader = std::make_shared<DataLoader>();
     std::shared_ptr<Data> data = loadData(dataLoader);
+    std::cout << "Data loaded!" << std::endl;
 
     return 0;
 }
@@ -26,9 +27,9 @@ std::shared_ptr<Data> loadData(std::shared_ptr<DataLoader> dataLoader) {
         ++counter;
     } while( !dataLoader->setFileName(fileName) );
     dataLoader->setReadHeaders(dataContainHeader());
-    dataLoader->loadData();
+    std::shared_ptr<Data> data = dataLoader->loadData();
 
-    return nullptr;
+    return data;
 }
 
 bool dataContainHeader() {

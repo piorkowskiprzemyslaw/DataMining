@@ -18,19 +18,30 @@ void DataLoader::setReadHeaders(bool readHeaders) {
     m_readHeaders = readHeaders;
 }
 
-void DataLoader::loadData() {
+std::shared_ptr<Data> DataLoader::loadData() {
+    std::shared_ptr<Data> data = std::make_shared<Data>();
     std::fstream file(m_fileName);
+    std::locale csv(std::locale::classic(), new csvctype);
     std::string line;
 
     while(getline(file, line)) {
         std::istringstream is(line);
-        std::string fieldName;
-        std::locale csv(std::locale::classic(), new csvctype);
         is.imbue(csv);
 
-        for(int i = 0 ; is >> fieldName ; ++i ) {
-
+        if(m_readHeaders) {
+            std::string fieldName;
+            for(int i = 0 ; is >> fieldName ; ++i ) {
+                data->addColumnHeader(i, fieldName);
+            }
+            m_readHeaders = false;
+        } else {
+            double attrVal;
+            std::vector<double> row;
+            for(int i = 0 ; is >> attrVal ; ++i ) {
+                row.push_back(attrVal);
+            }
+            data->addDataMatrixRow(std::move(row));
         }
-        break;
     }
+    return data;
 }

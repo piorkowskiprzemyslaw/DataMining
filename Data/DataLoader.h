@@ -30,6 +30,6 @@ public:
     DataLoader();
     bool setFileName(const std::string & fileName);
     void setReadHeaders(bool readHeaders);
-    void loadData();
+    std::shared_ptr<Data> loadData();
 };
 
