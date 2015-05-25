@@ -1,6 +1,8 @@
 #include "DataLoader.h"
 
-DataLoader::DataLoader() { }
+DataLoader::DataLoader(const std::string &classHeader) {
+    m_classHeader = classHeader;
+}
 
 bool DataLoader::setFileName(const std::string &fileName) {
     if(fileExist(fileName)) {
@@ -19,21 +21,22 @@ void DataLoader::setReadHeaders(bool readHeaders) {
 }
 
 std::shared_ptr<Data> DataLoader::loadData() {
-    std::shared_ptr<Data> data = std::make_shared<Data>();
+    std::shared_ptr<Data> data = std::make_shared<Data>(m_classHeader);
     std::fstream file(m_fileName);
     std::locale csv(std::locale::classic(), new csvctype);
     std::string line;
+    bool readHeaders = m_readHeaders;
 
     while(getline(file, line)) {
         std::istringstream is(line);
         is.imbue(csv);
 
-        if(m_readHeaders) {
+        if(readHeaders) {
             std::string fieldName;
             for(int i = 0 ; is >> fieldName ; ++i ) {
-                data->addColumnHeader(i, fieldName);
+                data->addColumnHeader(fieldName, i);
             }
-            m_readHeaders = false;
+            readHeaders = false;
         } else {
             double attrVal;
             std::vector<double> row;

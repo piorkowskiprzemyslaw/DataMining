@@ -23,11 +23,12 @@ private:
     };
 
     std::string m_fileName;
+    std::string m_classHeader;
     bool m_readHeaders;
 
     bool fileExist(const std::string & fileName);
 public:
-    DataLoader();
+    DataLoader(const std::string & classHeader);
     bool setFileName(const std::string & fileName);
     void setReadHeaders(bool readHeaders);
     std::shared_ptr<Data> loadData();
