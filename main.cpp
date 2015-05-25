@@ -3,11 +3,29 @@
 #include "Data/Data.h"
 #include "Data/DataLoader.h"
 
+// default data file name
+std::string FILE_NAME = "data.csv";
+// read headers
+bool READ_HEADERS = false;
+
+
 std::shared_ptr<Data> loadData(std::shared_ptr<DataLoader>);
 bool dataContainHeader();
 
-int main()
+int main(int argc, char* argv[])
 {
+    for( int i = 1 ; i < argc ; ++i){
+        if( strcmp(argv[i], "-f") == 0 ){
+            FILE_NAME = argv[++i];
+            continue;
+        }
+        if( strcmp(argv[i], "-h") == 0 ) {
+            READ_HEADERS = true;
+            continue;
+        }
+        break;
+    }
+
     std::shared_ptr<DataLoader> dataLoader = std::make_shared<DataLoader>();
     std::shared_ptr<Data> data = loadData(dataLoader);
     std::cout << "Data loaded!" << std::endl;
@@ -16,37 +34,12 @@ int main()
 }
 
 std::shared_ptr<Data> loadData(std::shared_ptr<DataLoader> dataLoader) {
-    std::string fileName;
-    int counter = 0;
-    do {
-        if(counter > 0 )
-            std::cout << "File read failed, try again : " ;
-        else
-            std::cout << "Type file name : ";
-        std::cin >> fileName;
-        ++counter;
-    } while( !dataLoader->setFileName(fileName) );
-    dataLoader->setReadHeaders(dataContainHeader());
+    if( !dataLoader->setFileName(FILE_NAME) ) {
+        std::cout << FILE_NAME << " read failed!" << std::endl;
+        exit(1);
+    }
+    dataLoader->setReadHeaders(READ_HEADERS);
     std::shared_ptr<Data> data = dataLoader->loadData();
 
     return data;
-}
-
-bool dataContainHeader() {
-    int counter = 0;
-    std::string response;
-    do {
-        if(!counter)
-            std::cout << "Does data file contain headers [Y|N] : ";
-        else
-            std::cout << "Type Y or N : ";
-
-        std::cin >> response;
-        if (response=="Y" || response=="y") {
-            return true;
-        } else if (response=="N" || response=="n") {
-            return false;
-        }
-        ++counter;
-    } while(true);
 }
