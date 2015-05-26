@@ -38,7 +38,7 @@ int KNNClassifier::getResultClass(std::priority_queue<std::pair<int, double>,
     int classIndex = m_trainData->getClassIdx();
     int cls = 0;
     std::pair<int, double> actualPair;
-    std::vector<double> clsVal(m_k,0.0);
+    std::vector<double> clsVal(m_trainData->getNumberOfClasses(),0.0);
 
     for(int i = 0; i < m_k; ++i) {
         actualPair = pq.top();

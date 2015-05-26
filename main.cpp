@@ -54,18 +54,12 @@ int main(int argc, char* argv[])
     std::shared_ptr<DataLoader> dataLoader = std::make_shared<DataLoader>(CLASS_NAME);
     std::shared_ptr<Data> train_data = loadData(dataLoader, TRAIN_FILE_NAME);
     std::shared_ptr<Data> test_data = loadData(dataLoader, TEST_FILE_NAME);
-    std::cout << "Data loaded!" << std::endl;
 
     std::shared_ptr<KNNClassifier> classif = std::make_shared<KNNClassifier>(train_data, K);
     classif->setTestData(test_data);
 
     std::vector<double> weights(train_data->nAttributes(), 1);
     std::vector<int> classes = classif->classifiy(weights);
-
-    for(auto it : classes) {
-        std::cout << it << " ";
-    }
-    std::cout << std::endl;
 
     return 0;
 }

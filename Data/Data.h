@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <set>
 #include <limits>
 #include <utility>
 
@@ -9,6 +10,7 @@ class Data
 {
 private:
     std::string m_classAttributeHeader;
+    int m_numberOfClasses;
     // Mapping column name -> column number
     std::map<std::string, int> m_header;
     std::vector<std::vector<double>> m_dataMatrix;
@@ -28,5 +30,6 @@ public:
     int getClassIdx();
     size_t nRow() const;
     size_t nAttributes() const;
+    int getNumberOfClasses();
 };
 

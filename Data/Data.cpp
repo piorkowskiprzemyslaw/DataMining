@@ -2,6 +2,7 @@
 
 Data::Data(const std::string &classAttributeHeader) {
     m_classAttributeHeader = classAttributeHeader;
+    m_numberOfClasses = -1;
 }
 
 void Data::addColumnHeader(const std::string &columnName, const int columnNumber) {
@@ -81,4 +82,15 @@ const std::string& Data::getClassAttributeHeader() const {
 
 int Data::getClassIdx() {
     return m_header[m_classAttributeHeader];
+}
+
+int Data::getNumberOfClasses() {
+    if(m_numberOfClasses != -1)
+        return m_numberOfClasses;
+    std::set<int> classes;
+
+    for(auto row : m_dataMatrix) {
+        classes.insert(row[m_header[m_classAttributeHeader]]);
+    }
+    return classes.size();
 }
