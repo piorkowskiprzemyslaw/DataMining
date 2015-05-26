@@ -3,6 +3,7 @@
 #include "Data/Data.h"
 #include "Data/DataLoader.h"
 #include "KNNClassifier/KNNClassifier.h"
+#include "DFT/DFTReduction.h"
 
 // default train data file name
 std::string TRAIN_FILE_NAME = "data_train.csv";
@@ -14,6 +15,8 @@ bool READ_HEADERS = false;
 std::string CLASS_NAME = "spam";
 // parameter K for KNN algorithm
 int K = 5;
+// dft algo treshold
+double DFT_TRESHOLD = 0.2;
 
 
 std::shared_ptr<Data> loadData(std::shared_ptr<DataLoader> dataLoader, const std::string& fileName) {
@@ -58,6 +61,10 @@ int main(int argc, char* argv[])
             K = std::stoi(argv[++i]);
             continue;
         }
+        if( strcmp(argv[i], "-DFT") == 0 ) {
+            DFT_TRESHOLD = std::stod(argv[++i]);
+            continue;
+        }
         break;
     }
 
@@ -66,10 +73,15 @@ int main(int argc, char* argv[])
     std::shared_ptr<Data> test_data = loadData(dataLoader, TEST_FILE_NAME);
 
     std::shared_ptr<KNNClassifier> classif = std::make_shared<KNNClassifier>(train_data, K);
+    std::vector<double> w1(test_data->nAttributes(), 1.0);
     classif->setTestData(test_data);
+    std::vector<int> classes = classif->classifiy(w1);
+    printNumberOfFaults(classes,test_data);
 
-    std::vector<double> weights(train_data->nAttributes(), 1);
-    std::vector<int> classes = classif->classifiy(weights);
+    std::shared_ptr<DFTReduction> dft = std::make_shared<DFTReduction>(train_data);
+    dft->setTreshold(DFT_TRESHOLD);
+    std::vector<double> w2 = dft->reduceAttributes();
+    classes = classif->classifiy(w2);
     printNumberOfFaults(classes, test_data);
 
     return 0;

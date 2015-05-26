@@ -9,8 +9,6 @@
 class Data
 {
 private:
-    const int PERCENTAGE_ATTRIBUTES = 54;
-    const int CONTINUOUS_ATTRIBUTES = 3;
     std::string m_classAttributeHeader;
     int m_numberOfClasses;
     std::map<std::string, int> m_header;
@@ -18,6 +16,9 @@ private:
     std::vector<std::pair<double, double>> m_minMaxValues;
 
 public:
+    const int PERCENTAGE_ATTRIBUTES = 54;
+    const int CONTINUOUS_ATTRIBUTES = 3;
+
     Data(const std::string& classAttributeHeader);
     void addColumnHeader(const std::string& columnName, const int columnNumber);
     void addDataMatrixRow(std::vector<double>&& row);

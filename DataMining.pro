@@ -16,9 +16,11 @@ TEMPLATE = app
 SOURCES += main.cpp \
     Data/Data.cpp \
     Data/DataLoader.cpp \
-    KNNClassifier/KNNClassifier.cpp
+    KNNClassifier/KNNClassifier.cpp \
+    DFT/DFTReduction.cpp
 
 HEADERS += \
     Data/Data.h \
     Data/DataLoader.h \
-    KNNClassifier/KNNClassifier.h
+    KNNClassifier/KNNClassifier.h \
+    DFT/DFTReduction.h
