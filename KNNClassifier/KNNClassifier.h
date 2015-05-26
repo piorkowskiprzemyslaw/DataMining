@@ -11,7 +11,7 @@ struct PairCompare
 {
     bool operator()(const std::pair<int,double> & lhs,
                     const std::pair<int,double> & rhs){
-        return lhs.second < rhs.second;
+        return lhs.second > rhs.second;
     }
 };
 
@@ -22,6 +22,7 @@ private:
     std::shared_ptr<Data> m_trainData;
     std::shared_ptr<Data> m_testData;
     int m_k;
+    int m_classIdx;
 
     double distance(const std::vector<double>& v1,
                     const std::vector<double>& v2,

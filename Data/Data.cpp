@@ -31,11 +31,11 @@ void Data::printData() {
 void Data::computeMinMaxValues() {
     double actualVal;
     // vector of (min;max) values; one per attributes
-    m_minMaxValues = std::vector<std::pair<double,double>>(m_dataMatrix[0].size(),
+    m_minMaxValues = std::vector<std::pair<double,double>>(CONTINUOUS_ATTRIBUTES,
             std::make_pair(std::numeric_limits<double>::max(), std::numeric_limits<double>::min()));
     for(size_t i = 0; i < m_dataMatrix.size(); ++i) {
-        for(size_t j = 0; j < m_dataMatrix[i].size(); ++j) {
-            actualVal = m_dataMatrix[i][j];
+        for(size_t j = 0; j < CONTINUOUS_ATTRIBUTES; ++j) {
+            actualVal = m_dataMatrix[i][j+PERCENTAGE_ATTRIBUTES];
             if(actualVal < m_minMaxValues[j].first) {
                 m_minMaxValues[j].first = actualVal;
             }
@@ -54,12 +54,15 @@ const std::vector<std::pair<double, double>>& Data::getMinMaxValues() {
     return m_minMaxValues;
 }
 
-void Data::minMaxNormalization() {
+void Data::normalization() {
     for(size_t i = 0; i < m_dataMatrix.size(); ++i) {
         for(size_t j = 0; j < m_dataMatrix[i].size(); ++j) {
-            if(j != m_header[m_classAttributeHeader])
-                m_dataMatrix[i][j] = (m_dataMatrix[i][j] - m_minMaxValues[j].first) /
-                        (m_minMaxValues[j].second - m_minMaxValues[j].first);
+            if(j < PERCENTAGE_ATTRIBUTES) {
+                m_dataMatrix[i][j] /= 100;
+            } else if(j < PERCENTAGE_ATTRIBUTES+CONTINUOUS_ATTRIBUTES) {
+                m_dataMatrix[i][j] = (m_dataMatrix[i][j] - m_minMaxValues[j-PERCENTAGE_ATTRIBUTES].first) /
+                        (m_minMaxValues[j-PERCENTAGE_ATTRIBUTES].second - m_minMaxValues[j-PERCENTAGE_ATTRIBUTES].first);
+            }
         }
     }
 }

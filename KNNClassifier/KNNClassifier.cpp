@@ -3,13 +3,14 @@
 KNNClassifier::KNNClassifier(std::shared_ptr<Data> trainData, const int k)
     : m_trainData(trainData), m_k(k) {
     m_trainData->computeMinMaxValues();
-    m_trainData->minMaxNormalization();
+    m_trainData->normalization();
+    m_classIdx = m_trainData->getClassIdx();
 }
 
 void KNNClassifier::setTestData(std::shared_ptr<Data> testData) {
     m_testData = testData;
     m_testData->setMinMaxValues(m_trainData->getMinMaxValues());
-    m_testData->minMaxNormalization();
+    m_testData->normalization();
 }
 
 std::vector<int> KNNClassifier::classifiy(const std::vector<double>& weights) const {
@@ -35,7 +36,6 @@ std::vector<int> KNNClassifier::classifiy(const std::vector<double>& weights) co
 
 int KNNClassifier::getResultClass(std::priority_queue<std::pair<int, double>,
                                   std::vector<std::pair<int, double> >, PairCompare>& pq) const {
-    int classIndex = m_trainData->getClassIdx();
     int cls = 0;
     std::pair<int, double> actualPair;
     std::vector<double> clsVal(m_trainData->getNumberOfClasses(),0.0);
@@ -43,7 +43,7 @@ int KNNClassifier::getResultClass(std::priority_queue<std::pair<int, double>,
     for(int i = 0; i < m_k; ++i) {
         actualPair = pq.top();
         const std::vector<double>& row = m_trainData->getRow(actualPair.first);
-        clsVal[ row[classIndex] ] += (1/actualPair.second);
+        clsVal[ row[m_classIdx] ] += (1/actualPair.second);
         pq.pop();
     }
 
@@ -62,8 +62,10 @@ double KNNClassifier::distance(const std::vector<double> &v1,
     double distance = 0;
     double partialSum = 0;
     for(size_t i = 0 ; i < v1.size() ; ++i) {
-        partialSum = v1[i] - v2[i];
-        distance += ((partialSum * partialSum) * weights[i] );
+        if(i != m_classIdx) {
+            partialSum = v1[i] - v2[i];
+            distance += ((partialSum * partialSum) * weights[i] );
+        }
     }
     return sqrt(distance);
 }

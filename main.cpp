@@ -25,6 +25,16 @@ std::shared_ptr<Data> loadData(std::shared_ptr<DataLoader> dataLoader, const std
     return dataLoader->loadData();
 }
 
+void printNumberOfFaults(const std::vector<int>& classes, std::shared_ptr<Data> test_data) {
+    int faults = 0;
+    for(int i = 0; i < classes.size(); ++i) {
+        if(classes[i]!= test_data->getRow(i)[57]) {
+            faults++;
+        }
+    }
+    std::cout << "Faults : " << faults << std::endl;
+}
+
 int main(int argc, char* argv[])
 {
     for( int i = 1 ; i < argc ; ++i){
@@ -60,6 +70,7 @@ int main(int argc, char* argv[])
 
     std::vector<double> weights(train_data->nAttributes(), 1);
     std::vector<int> classes = classif->classifiy(weights);
+    printNumberOfFaults(classes, test_data);
 
     return 0;
 }
