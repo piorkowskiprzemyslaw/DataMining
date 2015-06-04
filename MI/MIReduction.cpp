@@ -18,7 +18,6 @@ void MIReduction::setTreshold(double treshold)
 
 const std::vector<double> MIReduction::reduceAttributes()
 {
-//    const auto numberOfDocuments = m_train_data->nRow();
     computeParametersVector();
     computeMIMatrix();
     if(m_miReductionType == MIReductionType::AVG) {
@@ -57,7 +56,6 @@ void MIReduction::computeMIMatrix()
     m_miMatrix = std::vector<std::vector<double>>(m_train_data->nAttributes(),
                                                   std::vector<double>(m_train_data->getNumberOfClasses(), 0.0));
     auto N = m_train_data->nRow();
-    std::cout << "N = " << N << std::endl;
     for(size_t attNumber = 0; attNumber < m_train_data->nAttributes(); ++attNumber) {
         for(auto actualCls = 0; actualCls < m_train_data->getNumberOfClasses(); ++actualCls) {
             double A = m_parameters[attNumber][actualCls][Param::A];
