@@ -49,41 +49,25 @@ int main(int argc, char* argv[])
     for( int i = 1 ; i < argc ; ++i){
         if( strcmp(argv[i], "-ftrain") == 0 ) {
             TRAIN_FILE_NAME = argv[++i];
-            continue;
-        }
-        if( strcmp(argv[i], "-ftest") == 0 ) {
+        } else if( strcmp(argv[i], "-ftest") == 0 ) {
             TEST_FILE_NAME = argv[++i];
-            continue;
-        }
-        if( strcmp(argv[i], "-h") == 0 ) {
+        } else if( strcmp(argv[i], "-h") == 0 ) {
             READ_HEADERS = true;
-            continue;
-        }
-        if( strcmp(argv[i], "-cname") == 0 ) {
+        } else if( strcmp(argv[i], "-cname") == 0 ) {
             CLASS_NAME = argv[++i];
-            continue;
-        }
-        if( strcmp(argv[i], "-k") == 0 ) {
+        } else if( strcmp(argv[i], "-k") == 0 ) {
             K = std::stoi(argv[++i]);
-            continue;
-        }
-        if( strcmp(argv[i], "-DFT") == 0 ) {
+        } else if( strcmp(argv[i], "-DFT") == 0 ) {
             DFT_TRESHOLD = std::stod(argv[++i]);
-            continue;
-        }
-        if( strcmp(argv[i], "-MI_MAX") == 0 ) {
+        } else if( strcmp(argv[i], "-MI_MAX") == 0 ) {
             MI_REDUCTION_TYPE = MIReductionType::MAX;
-            continue;
-        }
-        if( strcmp(argv[i], "-MI_AVG") == 0 ) {
+        } else if( strcmp(argv[i], "-MI_AVG") == 0 ) {
             MI_REDUCTION_TYPE = MIReductionType::AVG;
-            continue;
-        }
-        if( strcmp(argv[i], "-MI") == 0 ) {
+        } else if( strcmp(argv[i], "-MI") == 0 ) {
             MI_TRESHOLD = std::stod(argv[++i]);
-            continue;
+        } else if( strcmp(argv[i], "-l") == 0 ) {
+            Logger::setLogLevel(std::stoi(argv[++i]));
         }
-        break;
     }
 
     DataLoader dataLoader(CLASS_NAME);

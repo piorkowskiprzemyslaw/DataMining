@@ -20,8 +20,8 @@ std::vector<int> KNNClassifier::classifiy(const std::vector<double>& weights) co
 {
     std::vector<int> classes(m_testData->nRow());
     if( weights.size() != m_trainData->nAttributes() ) {
-        std::cerr << " Incompatible size of weights "
-                     "vector and number of train data attributes" << std::endl;
+        LOG(ERROR) << " Incompatible size of weights "
+                     "vector and number of train data attributes";
         return classes;
     }
 

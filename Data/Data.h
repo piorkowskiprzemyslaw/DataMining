@@ -7,6 +7,8 @@
 #include <limits>
 #include <utility>
 
+#include "Logger.h"
+
 class Data
 {
 private:
@@ -33,7 +35,7 @@ public:
     void addDataMatrixRow(T &&row)
     {
         if(row.size() != m_header.size()) {
-            std::cerr << "Incompatible number of attributes" << std::endl;
+            LOG(WARNING) << "Incompatible number of attributes";
         }
 
         m_dataMatrix.emplace_back(std::forward<T>(row));

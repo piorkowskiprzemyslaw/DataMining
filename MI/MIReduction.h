@@ -38,7 +38,7 @@ private:
     void printWeights(const std::vector<double>& weights)
     {
         for(const auto &weight : weights) {
-            std::cout << weight << std::endl;
+            LOG(INFO) << weight;
         }
     }
 

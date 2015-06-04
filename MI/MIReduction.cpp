@@ -80,7 +80,7 @@ const std::vector<double> MIReduction::avgReduction()
             weights[attNumber] += classProbability[actualCls] * m_miMatrix[attNumber][actualCls];
         }
     }
-//    printWeights(weights);
+    printWeights(weights);
     filterWeights(weights);
     return weights;
 }
@@ -90,15 +90,16 @@ const std::vector<double> MIReduction::maxReduction()
     std::vector<double> weights(m_train_data->nAttributes(), std::numeric_limits<double>::min());
 
     for(size_t attNumber = 0; attNumber < m_train_data->nAttributes(); ++attNumber) {
+        std::stringstream logStr;
         for(auto actualCls = 0; actualCls < m_train_data->getNumberOfClasses(); ++actualCls) {
-//            std::cout << m_miMatrix[attNumber][actualCls] << " ";
+            logStr << m_miMatrix[attNumber][actualCls] << " ";
             if(weights[attNumber] < m_miMatrix[attNumber][actualCls]) {
                 weights[attNumber] = m_miMatrix[attNumber][actualCls];
             }
         }
-//        std::cout << std::endl;
+        LOG(INFO) << logStr.rdbuf();
     }
-//    printWeights(weights);
+    printWeights(weights);
     filterWeights(weights);
     return weights;
 }
