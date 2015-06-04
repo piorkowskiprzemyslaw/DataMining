@@ -94,18 +94,19 @@ int main(int argc, char* argv[])
     std::shared_ptr<KNNClassifier> classif = std::make_shared<KNNClassifier>(train_data, K);
     classif->setTestData(test_data);
 
-//    // without reduction
-//    const std::vector<double> w1(test_data->nAttributes(), 1.0);
-//    std::vector<int> classes = classif->classifiy(w1);
-//    printNumberOfFaults(classes,test_data);
+    // without reduction
+    const std::vector<double> w1(test_data->nAttributes(), 1.0);
+    std::vector<int> classes = classif->classifiy(w1);
+    printNumberOfFaults(classes,test_data);
 
-//    // dft reduction
-//    std::shared_ptr<DFTReduction> dft = std::make_shared<DFTReduction>(train_data);
-//    dft->setTreshold(DFT_TRESHOLD);
-//    const std::vector<double> w2 = dft->reduceAttributes();
-//    std::vector<int> classes_dft = classif->classifiy(w2);
-//    printNumberOfFaults(classes_dft, test_data);
+    // dft reduction
+    std::shared_ptr<DFTReduction> dft = std::make_shared<DFTReduction>(train_data);
+    dft->setTreshold(DFT_TRESHOLD);
+    const std::vector<double> w2 = dft->reduceAttributes();
+    std::vector<int> classes_dft = classif->classifiy(w2);
+    printNumberOfFaults(classes_dft, test_data);
 
+    // mi reduction
     std::shared_ptr<MIReduction> mi = std::make_shared<MIReduction>(train_data);
     mi->setReductionType(MI_REDUCTION_TYPE);
     mi->setTreshold(MI_TRESHOLD);
