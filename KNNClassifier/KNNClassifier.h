@@ -1,4 +1,5 @@
 #pragma once
+
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -22,7 +23,7 @@ private:
     std::shared_ptr<Data> m_trainData;
     std::shared_ptr<Data> m_testData;
     int m_k;
-    unsigned int m_classIdx;
+    size_t m_classIdx;
 
     double distance(const std::vector<double>& v1,
                     const std::vector<double>& v2,

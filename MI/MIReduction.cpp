@@ -1,19 +1,24 @@
 #include "MIReduction.h"
 
-MIReduction::MIReduction(const std::shared_ptr<const Data> train_data) : m_train_data(train_data) {
+MIReduction::MIReduction(const std::shared_ptr<const Data> train_data)
+    : m_train_data(std::move(train_data))
+{
     m_classIdx = train_data->getClassIdx();
 }
 
-void MIReduction::setReductionType(const MIReductionType type) {
+void MIReduction::setReductionType(const MIReductionType type)
+{
     m_miReductionType = type;
 }
 
-void MIReduction::setTreshold(double treshold) {
+void MIReduction::setTreshold(double treshold)
+{
     m_treshold = treshold;
 }
 
-const std::vector<double> MIReduction::reduceAttributes() {
-    unsigned int numberOfDocuments = m_train_data->nRow();
+const std::vector<double> MIReduction::reduceAttributes()
+{
+//    const auto numberOfDocuments = m_train_data->nRow();
     computeParametersVector();
     computeMIMatrix();
     if(m_miReductionType == MIReductionType::AVG) {
@@ -23,18 +28,19 @@ const std::vector<double> MIReduction::reduceAttributes() {
     }
 }
 
-void MIReduction::computeParametersVector() {
+void MIReduction::computeParametersVector()
+{
     m_parameters = std::vector<std::vector<std::vector<unsigned int>>>(m_train_data->nAttributes(),
                                                                        std::vector<std::vector<unsigned int>>( m_train_data->getNumberOfClasses(),
                                                                                                                std::vector<unsigned int>(3,0) ) );
 
     for(size_t i = 0 ; i < m_train_data->nRow(); ++i ) {
         const std::vector<double>& row = m_train_data->getRow(i);
-        int actualClass = row[m_classIdx];
+        const auto actualClass = row[m_classIdx];
         for(size_t attNumber = 0 ; attNumber < m_train_data->nAttributes(); ++attNumber) {
             if(row[attNumber] > 0) {
                 m_parameters[attNumber][actualClass][Param::A]++;
-                for(size_t cls = 0 ; cls < m_train_data->getNumberOfClasses(); ++cls) {
+                for(auto cls = 0 ; cls < m_train_data->getNumberOfClasses(); ++cls) {
                     if(cls != actualClass) {
                         m_parameters[attNumber][cls][Param::B]++;
                     }
@@ -46,13 +52,14 @@ void MIReduction::computeParametersVector() {
     }
 }
 
-void MIReduction::computeMIMatrix() {
+void MIReduction::computeMIMatrix()
+{
     m_miMatrix = std::vector<std::vector<double>>(m_train_data->nAttributes(),
                                                   std::vector<double>(m_train_data->getNumberOfClasses(), 0.0));
-    unsigned int N = m_train_data->nRow();
+    auto N = m_train_data->nRow();
     std::cout << "N = " << N << std::endl;
     for(size_t attNumber = 0; attNumber < m_train_data->nAttributes(); ++attNumber) {
-        for(size_t actualCls = 0; actualCls < m_train_data->getNumberOfClasses(); ++actualCls) {
+        for(auto actualCls = 0; actualCls < m_train_data->getNumberOfClasses(); ++actualCls) {
             double A = m_parameters[attNumber][actualCls][Param::A];
             double B = m_parameters[attNumber][actualCls][Param::B];
             double C = m_parameters[attNumber][actualCls][Param::C];
@@ -62,40 +69,43 @@ void MIReduction::computeMIMatrix() {
     }
 }
 
-const std::vector<double> MIReduction::avgReduction() {
+const std::vector<double> MIReduction::avgReduction()
+{
     std::vector<double> weights(m_train_data->nAttributes(),0.0);
-    std::vector<double> classProbability = m_train_data->getClassProbability();
+    const auto &classProbability = m_train_data->getClassProbability();
 
     for(size_t attNumber = 0; attNumber < m_train_data->nAttributes(); ++attNumber) {
-        for(size_t actualCls = 0; actualCls < m_train_data->getNumberOfClasses(); ++actualCls) {
+        for(auto actualCls = 0; actualCls < m_train_data->getNumberOfClasses(); ++actualCls) {
             std::cout << classProbability[actualCls] << " " << m_miMatrix[attNumber][actualCls] << std::endl;
             weights[attNumber] += classProbability[actualCls] * m_miMatrix[attNumber][actualCls];
         }
     }
-    printWeights(weights);
+//    printWeights(weights);
     filterWeights(weights);
     return weights;
 }
 
-const std::vector<double> MIReduction::maxReduction() {
+const std::vector<double> MIReduction::maxReduction()
+{
     std::vector<double> weights(m_train_data->nAttributes(), std::numeric_limits<double>::min());
 
     for(size_t attNumber = 0; attNumber < m_train_data->nAttributes(); ++attNumber) {
-        for(size_t actualCls = 0; actualCls < m_train_data->getNumberOfClasses(); ++actualCls) {
-            std::cout << m_miMatrix[attNumber][actualCls] << " ";
+        for(auto actualCls = 0; actualCls < m_train_data->getNumberOfClasses(); ++actualCls) {
+//            std::cout << m_miMatrix[attNumber][actualCls] << " ";
             if(weights[attNumber] < m_miMatrix[attNumber][actualCls]) {
                 weights[attNumber] = m_miMatrix[attNumber][actualCls];
             }
         }
-        std::cout << std::endl;
+//        std::cout << std::endl;
     }
-    printWeights(weights);
+//    printWeights(weights);
     filterWeights(weights);
     return weights;
 }
 
-void MIReduction::filterWeights(std::vector<double> &weights) {
-    for(auto& weight: weights) {
+void MIReduction::filterWeights(std::vector<double> &weights)
+{
+    for(auto &weight: weights) {
         weight = weight > m_treshold ? 1.0 : 0.0;
     }
 }

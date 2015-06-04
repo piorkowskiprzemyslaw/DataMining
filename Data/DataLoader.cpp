@@ -1,26 +1,30 @@
 #include "DataLoader.h"
 
-DataLoader::DataLoader(const std::string &classHeader) {
-    m_classHeader = classHeader;
-}
+DataLoader::DataLoader(const std::string &classHeader)
+    : m_classHeader(classHeader)
+{ }
 
-bool DataLoader::setFileName(const std::string &fileName) {
+bool DataLoader::setFileName(const std::string &fileName)
+{
     if(fileExist(fileName)) {
-        m_fileName.assign(fileName);
+        m_fileName = fileName;
         return true;
     }
     return false;
 }
 
-bool DataLoader::fileExist(const std::string &fileName) {
+bool DataLoader::fileExist(const std::string &fileName)
+{
     return ( access( fileName.c_str(), F_OK ) != -1 );
 }
 
-void DataLoader::setReadHeaders(bool readHeaders) {
+void DataLoader::setReadHeaders(bool readHeaders)
+{
     m_readHeaders = readHeaders;
 }
 
-std::shared_ptr<Data> DataLoader::loadData() {
+std::shared_ptr<Data> DataLoader::loadData()
+{
     std::shared_ptr<Data> data = std::make_shared<Data>(m_classHeader);
     std::fstream file(m_fileName);
     std::locale csv(std::locale::classic(), new csvctype);

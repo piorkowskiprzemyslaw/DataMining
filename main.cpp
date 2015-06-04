@@ -6,38 +6,21 @@
 #include "DFT/DFTReduction.h"
 #include "MI/MIReduction.h"
 
-// default train data file name
-std::string TRAIN_FILE_NAME = "data_train.csv";
-// default test data file name
-std::string TEST_FILE_NAME = "data_test.csv";
-// read headers
-bool READ_HEADERS = false;
-// class attribute column name
-std::string CLASS_NAME = "spam";
-// parameter K for KNN algorithm
-int K = 5;
-// dft algo treshold
-double DFT_TRESHOLD = 0.2;
-// mi algo reduction type
-MIReductionType MI_REDUCTION_TYPE = MIReductionType::MAX;
-// mi algo reduction treshold
-double MI_TRESHOLD = 0.2;
-
-
-std::shared_ptr<Data> loadData(std::shared_ptr<DataLoader> dataLoader, const std::string& fileName) {
-    if( !dataLoader->setFileName(fileName) ) {
-        std::cout << fileName << " read failed!" << std::endl;
+template<typename T>
+std::shared_ptr<Data> loadData(T &&dataLoader, const std::string &fileName, bool readHeaders) {
+    if( !dataLoader.setFileName(fileName) ) {
+        std::cout << fileName << " does not exists!" << std::endl;
         exit(1);
     }
-    dataLoader->setReadHeaders(READ_HEADERS);
-    return dataLoader->loadData();
+    dataLoader.setReadHeaders(readHeaders);
+    return dataLoader.loadData();
 }
 
 void printNumberOfFaults(const std::vector<int>& classes, std::shared_ptr<Data> test_data) {
-    int faults = 0;
-    for(size_t i = 0; i < classes.size(); ++i) {
+    auto faults = 0u;
+    for(size_t i = 0u; i < classes.size(); ++i) {
         if(classes[i]!= test_data->getRow(i)[57]) {
-            faults++;
+            ++faults;
         }
     }
     std::cout << "Faults : " << faults << std::endl;
@@ -45,6 +28,24 @@ void printNumberOfFaults(const std::vector<int>& classes, std::shared_ptr<Data> 
 
 int main(int argc, char* argv[])
 {
+    // default train data file name
+    std::string TRAIN_FILE_NAME = "data_train.csv";
+    // default test data file name
+    std::string TEST_FILE_NAME = "data_test.csv";
+    // read headers
+    bool READ_HEADERS = false;
+    // class attribute column name
+    std::string CLASS_NAME = "spam";
+    // parameter K for KNN algorithm
+    int K = 5;
+    // dft algo treshold
+    double DFT_TRESHOLD = 0.2;
+    // mi algo reduction type
+    MIReductionType MI_REDUCTION_TYPE = MIReductionType::MAX;
+    // mi algo reduction treshold
+    double MI_TRESHOLD = 0.2;
+
+
     for( int i = 1 ; i < argc ; ++i){
         if( strcmp(argv[i], "-ftrain") == 0 ) {
             TRAIN_FILE_NAME = argv[++i];
@@ -85,33 +86,33 @@ int main(int argc, char* argv[])
         break;
     }
 
-    std::shared_ptr<DataLoader> dataLoader = std::make_shared<DataLoader>(CLASS_NAME);
-    std::shared_ptr<Data> train_data = loadData(dataLoader, TRAIN_FILE_NAME);
+    DataLoader dataLoader(CLASS_NAME);
+    const auto train_data = loadData(dataLoader, TRAIN_FILE_NAME, READ_HEADERS);
     train_data->computeParameters();
-    std::shared_ptr<Data> test_data = loadData(dataLoader, TEST_FILE_NAME);
+    const auto test_data = loadData(dataLoader, TEST_FILE_NAME, READ_HEADERS);
     test_data->computeParameters();
 
-    std::shared_ptr<KNNClassifier> classif = std::make_shared<KNNClassifier>(train_data, K);
-    classif->setTestData(test_data);
+    KNNClassifier classif(train_data, K);
+    classif.setTestData(test_data);
 
     // without reduction
     const std::vector<double> w1(test_data->nAttributes(), 1.0);
-    std::vector<int> classes = classif->classifiy(w1);
+    const auto classes = classif.classifiy(w1);
     printNumberOfFaults(classes,test_data);
 
     // dft reduction
-    std::shared_ptr<DFTReduction> dft = std::make_shared<DFTReduction>(train_data);
-    dft->setTreshold(DFT_TRESHOLD);
-    const std::vector<double> w2 = dft->reduceAttributes();
-    std::vector<int> classes_dft = classif->classifiy(w2);
+    DFTReduction dft(train_data);
+    dft.setTreshold(DFT_TRESHOLD);
+    const std::vector<double> w2 = dft.reduceAttributes();
+    const auto classes_dft = classif.classifiy(w2);
     printNumberOfFaults(classes_dft, test_data);
 
     // mi reduction
-    std::shared_ptr<MIReduction> mi = std::make_shared<MIReduction>(train_data);
-    mi->setReductionType(MI_REDUCTION_TYPE);
-    mi->setTreshold(MI_TRESHOLD);
-    const std::vector<double> w3 = mi->reduceAttributes();
-    std::vector<int> classes_mi = classif->classifiy(w3);
+    MIReduction mi(train_data);
+    mi.setReductionType(MI_REDUCTION_TYPE);
+    mi.setTreshold(MI_TRESHOLD);
+    const std::vector<double> w3 = mi.reduceAttributes();
+    const auto classes_mi = classif.classifiy(w3);
     printNumberOfFaults(classes_mi, test_data);
 
     return 0;

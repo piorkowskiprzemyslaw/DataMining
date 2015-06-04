@@ -4,14 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       += core
-
 TARGET = DataMining
-CONFIG   -= app_bundle
-CONFIG   += c++11
-
-TEMPLATE = app
-
+CONFIG -= app_bundle
+CONFIG += c++11
 
 SOURCES += main.cpp \
     Data/Data.cpp \

@@ -1,4 +1,5 @@
 #pragma once
+
 #include <iostream>
 #include <map>
 #include <vector>
@@ -10,7 +11,7 @@ class Data
 {
 private:
     std::string m_classAttributeHeader;
-    int m_numberOfClasses;
+    int m_numberOfClasses = -1;
     std::map<std::string, int> m_header;
     std::vector<std::vector<double>> m_dataMatrix;
     std::vector<std::pair<double, double>> m_minMaxValues;
@@ -22,12 +23,22 @@ private:
     void computeClassesProbability();
 
 public:
-    const unsigned int PERCENTAGE_ATTRIBUTES = 54;
-    const unsigned int CONTINUOUS_ATTRIBUTES = 3;
+    static constexpr const auto PERCENTAGE_ATTRIBUTES = 54u;
+    static constexpr const auto CONTINUOUS_ATTRIBUTES =  3u;
 
-    Data(const std::string& classAttributeHeader);
+    explicit Data(const std::string& classAttributeHeader);
     void addColumnHeader(const std::string& columnName, const int columnNumber);
-    void addDataMatrixRow(std::vector<double>&& row);
+
+    template <typename T>
+    void addDataMatrixRow(T &&row)
+    {
+        if(row.size() != m_header.size()) {
+            std::cerr << "Incompatible number of attributes" << std::endl;
+        }
+
+        m_dataMatrix.emplace_back(std::forward<T>(row));
+    }
+
     void printData() const;
     void computeMinMaxValues();
     void setMinMaxValues(const std::vector<std::pair<double, double>>& minMaxValues);

@@ -35,14 +35,15 @@ private:
     const std::vector<double> maxReduction();
     void filterWeights(std::vector<double>& weights);
 
-    void printWeights(const std::vector<double>& weights) {
-        for(auto weight: weights) {
+    void printWeights(const std::vector<double>& weights)
+    {
+        for(const auto &weight : weights) {
             std::cout << weight << std::endl;
         }
     }
 
 public:
-    MIReduction(const std::shared_ptr<const Data> train_data);
+    explicit MIReduction(const std::shared_ptr<const Data> train_data);
     void setReductionType(const MIReductionType type);
     void setTreshold(double treshold);
     const std::vector<double> reduceAttributes();
