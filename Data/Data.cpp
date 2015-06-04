@@ -15,7 +15,7 @@ void Data::addDataMatrixRow(std::vector<double> &&row) {
     m_dataMatrix.emplace_back(row);
 }
 
-void Data::printData() {
+void Data::printData() const {
     for(auto entry : m_header) {
         std::cout << entry.first << " : " << entry.second << std::endl;
     }
@@ -83,17 +83,47 @@ const std::string& Data::getClassAttributeHeader() const {
     return m_classAttributeHeader;
 }
 
-int Data::getClassIdx() {
-    return m_header[m_classAttributeHeader];
+int Data::getClassIdx() const {
+    return m_header.at(m_classAttributeHeader);
 }
 
-int Data::getNumberOfClasses() {
-    if(m_numberOfClasses != -1)
-        return m_numberOfClasses;
-    std::set<int> classes;
+const std::set<int> Data::getClassesValues() const {
+    return m_classValues;
+}
+
+int Data::getNumberOfClasses() const {
+    return m_numberOfClasses;
+}
+
+const std::vector<double> Data::getClassProbability() const {
+    return m_classProbability;
+}
+
+void Data::computeParameters() {
+    computeClassesValues();
+    computeNumberOfClasses();
+    computeClassesProbability();
+}
+
+void Data::computeClassesValues() {
+    for(auto row : m_dataMatrix) {
+        m_classValues.insert(row[m_header[m_classAttributeHeader]]);
+    }
+}
+
+void Data::computeNumberOfClasses() {
+    m_numberOfClasses = m_classValues.size();
+}
+
+void Data::computeClassesProbability() {
+    m_classProbability = std::vector<double>(getNumberOfClasses(), 0.0);
+    int classAttributeIdx = getClassIdx();
 
     for(auto row : m_dataMatrix) {
-        classes.insert(row[m_header[m_classAttributeHeader]]);
+        m_classProbability[ row[classAttributeIdx] ]++;
     }
-    return classes.size();
+
+    for(auto& classProb : m_classProbability) {
+        classProb /= nRow();
+    }
 }

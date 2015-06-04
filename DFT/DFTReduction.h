@@ -6,10 +6,10 @@
 class DFTReduction
 {
 private:
-    std::shared_ptr<Data> m_train_data;
+    const std::shared_ptr<const Data> m_train_data;
     double m_treshold;
 public:
-    DFTReduction(std::shared_ptr<Data> train_data);
+    DFTReduction(const std::shared_ptr<const Data> train_data);
     void setTreshold(const double treshold);
     const std::vector<double> reduceAttributes();
 };

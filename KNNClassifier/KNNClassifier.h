@@ -22,7 +22,7 @@ private:
     std::shared_ptr<Data> m_trainData;
     std::shared_ptr<Data> m_testData;
     int m_k;
-    int m_classIdx;
+    unsigned int m_classIdx;
 
     double distance(const std::vector<double>& v1,
                     const std::vector<double>& v2,

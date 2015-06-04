@@ -17,10 +17,12 @@ SOURCES += main.cpp \
     Data/Data.cpp \
     Data/DataLoader.cpp \
     KNNClassifier/KNNClassifier.cpp \
-    DFT/DFTReduction.cpp
+    DFT/DFTReduction.cpp \
+    MI/MIReduction.cpp
 
 HEADERS += \
     Data/Data.h \
     Data/DataLoader.h \
     KNNClassifier/KNNClassifier.h \
-    DFT/DFTReduction.h
+    DFT/DFTReduction.h \
+    MI/MIReduction.h
