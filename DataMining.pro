@@ -8,6 +8,8 @@ TARGET = DataMining
 CONFIG -= app_bundle
 CONFIG += c++11
 
+QMAKE_CXXFLAGS += -Werror -Wall -Wextra -pedantic
+
 SOURCES += main.cpp \
     Data/Data.cpp \
     Data/DataLoader.cpp \
