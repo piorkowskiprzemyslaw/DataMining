@@ -5,6 +5,7 @@
 #include "KNNClassifier/KNNClassifier.h"
 #include "DFT/DFTReduction.h"
 #include "MI/MIReduction.h"
+#include "CHI/CHIReduction.h"
 
 template<typename T>
 std::shared_ptr<Data> loadData(T &&dataLoader, const std::string &fileName, bool readHeaders) {
@@ -44,6 +45,10 @@ int main(int argc, char* argv[])
     MIReductionType MI_REDUCTION_TYPE = MIReductionType::MAX;
     // mi algo reduction treshold
     double MI_TRESHOLD = 0.2;
+    // mi algo reduction type
+    CHIReduction::ReductionMode CHI_REDUCTION_TYPE = CHIReduction::ReductionMode::Maximum;
+    // mi algo reduction treshold
+    double CHI_THRESHOLD = 0.2;
 
 
     for( int i = 1 ; i < argc ; ++i){
@@ -67,6 +72,12 @@ int main(int argc, char* argv[])
             MI_TRESHOLD = std::stod(argv[++i]);
         } else if( strcmp(argv[i], "-l") == 0 ) {
             Logger::setLogLevel(std::stoi(argv[++i]));
+        } else if( strcmp(argv[i], "-CHI_MAX") == 0 ) {
+            CHI_REDUCTION_TYPE = CHIReduction::ReductionMode::Maximum;
+        } else if( strcmp(argv[i], "-CHI_AVG") == 0 ) {
+            CHI_REDUCTION_TYPE = CHIReduction::ReductionMode::Average;
+        } else if( strcmp(argv[i], "-CHI") == 0 ) {
+            CHI_THRESHOLD = std::stod(argv[++i]);
         }
     }
 
@@ -98,6 +109,13 @@ int main(int argc, char* argv[])
     const std::vector<double> w3 = mi.reduceAttributes();
     const auto classes_mi = classif.classifiy(w3);
     printNumberOfFaults(classes_mi, test_data);
+
+    // chi reduction
+    CHIReduction chi(train_data);
+    chi.setThreshold(CHI_THRESHOLD);
+    const auto w4 = chi.reduce(CHI_REDUCTION_TYPE);
+    const auto classes_chi = classif.classifiy(w4);
+    printNumberOfFaults(classes_chi, test_data);
 
     return 0;
 }

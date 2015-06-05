@@ -14,7 +14,8 @@ SOURCES += main.cpp \
     KNNClassifier/KNNClassifier.cpp \
     DFT/DFTReduction.cpp \
     MI/MIReduction.cpp \
-    Logger.cpp
+    Logger.cpp \
+    CHI/CHIReduction.cpp
 
 HEADERS += \
     Data/Data.h \
@@ -22,4 +23,5 @@ HEADERS += \
     KNNClassifier/KNNClassifier.h \
     DFT/DFTReduction.h \
     MI/MIReduction.h \
-    Logger.h
+    Logger.h \
+    CHI/CHIReduction.h

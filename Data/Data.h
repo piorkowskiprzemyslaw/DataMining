@@ -1,11 +1,12 @@
 #pragma once
 
 #include <iostream>
-#include <map>
-#include <vector>
-#include <set>
 #include <limits>
+#include <map>
+#include <ostream>
+#include <set>
 #include <utility>
+#include <vector>
 
 #include "Logger.h"
 
@@ -41,16 +42,29 @@ public:
         m_dataMatrix.emplace_back(std::forward<T>(row));
     }
 
+    friend std::ostream & operator<<(std::ostream &, const Data &);
     void printData() const;
+
     void computeMinMaxValues();
     void setMinMaxValues(const std::vector<std::pair<double, double>>& minMaxValues);
     const std::vector<std::pair<double, double>>& getMinMaxValues();
+
     void normalization();
+
     const std::vector<double>& getRow(size_t rowNumber) const;
+    // Iterate over rows
+    auto begin() const -> decltype(m_dataMatrix.begin()) { return m_dataMatrix.begin(); }
+    auto end() const -> decltype(m_dataMatrix.end()) { return m_dataMatrix.end(); }
+    auto begin() -> decltype(m_dataMatrix.begin()) { return m_dataMatrix.begin(); }
+    auto end() -> decltype(m_dataMatrix.end()) { return m_dataMatrix.end(); }
+    auto cbegin() const -> decltype(m_dataMatrix.cbegin()) { return m_dataMatrix.cbegin(); }
+    auto cend() const -> decltype(m_dataMatrix.cend()) { return m_dataMatrix.cend(); }
+
     const std::string& getClassAttributeHeader() const;
     int getClassIdx() const;
     size_t nRow() const;
     size_t nAttributes() const;
+
     const std::set<int> getClassesValues() const;
     int getNumberOfClasses() const;
     const std::vector<double> getClassProbability() const;

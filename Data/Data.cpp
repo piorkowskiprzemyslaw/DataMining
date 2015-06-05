@@ -9,17 +9,24 @@ void Data::addColumnHeader(const std::string &columnName, const int columnNumber
     m_header.emplace(columnName, columnNumber);
 }
 
-void Data::printData() const {
-    for(const auto &entry : m_header) {
-        std::cout << entry.first << " : " << entry.second << std::endl;
+std::ostream & operator<<(std::ostream &stream, const Data &data)
+{
+    for(const auto &entry : data.m_header) {
+        stream << entry.first << " : " << entry.second << std::endl;
     }
 
-    for(const auto &row : m_dataMatrix) {
+    for(const auto &row : data.m_dataMatrix) {
         for(const auto &attr : row) {
-            std::cout << attr << " ";
+            stream << attr << " ";
         }
-        std::cout << std::endl;
+        stream << std::endl;
     }
+    return stream;
+}
+
+void Data::printData() const
+{
+    std::cout << *this;
 }
 
 void Data::computeMinMaxValues()
