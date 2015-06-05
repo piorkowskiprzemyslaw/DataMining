@@ -1,5 +1,7 @@
 #include "DFTReduction.h"
 
+#include <cassert>
+
 DFTReduction::DFTReduction(const std::shared_ptr<const Data> train_data)
     : m_train_data(std::move(train_data))
 { }
@@ -11,12 +13,19 @@ void DFTReduction::setTreshold(const double treshold)
 
 std::vector<double> DFTReduction::reduceAttributes()
 {
-    std::vector<double> occurences(m_train_data->nAttributes(), 0.0);
+    assert(m_train_data->nAttributes() > 0);
+    const auto attributesNumber = m_train_data->nAttributes();
 
-    for(size_t i = 0; i < m_train_data->nRow(); ++i) {
+    assert(m_train_data->getClassIdx() >= 0);
+    const unsigned classIndex = m_train_data->getClassIdx();
+
+    std::vector<double> occurences(attributesNumber);
+
+    for(decltype(m_train_data->nRow()) i = 0u; i < m_train_data->nRow(); ++i) {
         const auto &row = m_train_data->getRow(i);
-        for(long int j = 0; j < m_train_data->nAttributes(); ++j) {
-            if(row[j]>0 && j != m_train_data->getClassIdx()) {
+        // Sorry about the type
+        for(std::remove_const<decltype(attributesNumber)>::type j = 0u; j < attributesNumber; ++j) {
+            if(row[j] > 0 && j != classIndex) {
                 ++occurences[j];
             }
         }
