@@ -1,5 +1,9 @@
 #include "KNNClassifier.h"
 
+#include <cassert>
+
+#include <thread>
+
 KNNClassifier::KNNClassifier(std::shared_ptr<Data> trainData, const int k)
     : m_trainData(std::move(trainData))
     , m_k(k)
@@ -18,21 +22,36 @@ void KNNClassifier::setTestData(std::shared_ptr<Data> testData)
 
 std::vector<int> KNNClassifier::classifiy(const std::vector<double>& weights) const
 {
-    std::vector<int> classes(m_testData->nRow());
+    auto testRowNumber = m_testData->nRow();
+    assert(testRowNumber > 0);
+
+    std::vector<int> classes(testRowNumber);
     if( weights.size() != m_trainData->nAttributes() ) {
         LOG(ERROR) << " Incompatible size of weights "
                      "vector and number of train data attributes";
         return classes;
     }
 
-    for(size_t i = 0; i < m_testData->nRow(); ++i) {
-        const std::vector<double>& testRow = m_testData->getRow(i);
-        std::priority_queue<std::pair<int,double>, std::vector<std::pair<int,double>>, PairCompare> pq;
+    const auto classify = [this, &classes, &weights](const unsigned i) {
+        const auto &testRow = m_testData->getRow(i);
+        std::priority_queue<std::pair<int, double>, std::vector<std::pair<int, double>>, PairCompare> pq;
+
         for(size_t j = 0; j < m_trainData->nRow(); ++j) {
-            const std::vector<double>& trainRow = m_trainData->getRow(j);
-            pq.push(std::make_pair(j,distance(testRow,trainRow,weights)));
+            const auto &trainRow = m_trainData->getRow(j);
+            pq.push(std::make_pair(j, distance(testRow, trainRow, weights)));
         }
         classes[i] = getResultClass(pq);
+    };
+
+    // TODO Use hardware_concurrency and do not spawn threads like crazy
+    // TODO Use main thread for calculating last chunk of processing
+    std::vector<std::thread> threads;
+    for(size_t i = 0; i < testRowNumber; ++i) {
+        threads.emplace_back(classify, i);
+    }
+
+    for (auto& thread : threads) {
+        thread.join();
     }
 
     return classes;
