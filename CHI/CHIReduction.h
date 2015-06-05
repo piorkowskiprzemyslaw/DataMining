@@ -13,11 +13,11 @@ public:
         Maximum
     };
 
-    explicit CHIReduction(std::shared_ptr<const Data> &&data)
+    explicit CHIReduction(std::shared_ptr<const Data> &&data) noexcept
         : CHIReduction(data)
     { }
 
-    explicit CHIReduction(const std::shared_ptr<const Data> &data)
+    explicit CHIReduction(const std::shared_ptr<const Data> &data) noexcept
         : m_data(data)
         , m_threshold(0.0)
     { }
@@ -26,8 +26,8 @@ public:
 
     std::vector<double> reduce(ReductionMode mode);
 
-    inline void setThreshold(const double threshold) { m_threshold = threshold; }
-    inline double threshold() const { return m_threshold; }
+    inline void setThreshold(const double threshold) noexcept { m_threshold = threshold; }
+    inline double threshold() const noexcept { return m_threshold; }
 
 private:
     using Matrix = std::vector<std::vector<double>>;
@@ -36,7 +36,7 @@ private:
                                                    unsigned tWithC,
                                                    unsigned tWithoutC,
                                                    unsigned cWithoutT,
-                                                   unsigned norTnorC)
+                                                   unsigned norTnorC) noexcept
     {
         return (total * (tWithC * norTnorC + tWithoutC * cWithoutT) * (tWithC * norTnorC + tWithoutC * cWithoutT))
              / ((tWithC + cWithoutT) * (tWithoutC + norTnorC) * (tWithC + tWithoutC) * (cWithoutT + norTnorC));
