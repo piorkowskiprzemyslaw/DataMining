@@ -1,13 +1,12 @@
 #pragma once
 
-#include <iostream>
-#include <unistd.h>
-#include <locale>
 #include <algorithm>
-#include <iterator>
-#include <vector>
-#include <sstream>
 #include <fstream>
+#include <iostream>
+#include <iterator>
+#include <locale>
+#include <sstream>
+#include <vector>
 
 #include "Data/Data.h"
 

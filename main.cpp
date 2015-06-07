@@ -1,11 +1,14 @@
+#include <cassert>
+
 #include <iostream>
 #include <string>
+
+#include "CHI/CHIReduction.h"
+#include "DFT/DFTReduction.h"
 #include "Data/Data.h"
 #include "Data/DataLoader.h"
 #include "KNNClassifier/KNNClassifier.h"
-#include "DFT/DFTReduction.h"
 #include "MI/MIReduction.h"
-#include "CHI/CHIReduction.h"
 
 template<typename T>
 std::shared_ptr<Data> loadData(T &&dataLoader, const std::string &fileName, bool readHeaders) {
@@ -18,9 +21,12 @@ std::shared_ptr<Data> loadData(T &&dataLoader, const std::string &fileName, bool
 }
 
 void printNumberOfFaults(const std::vector<int>& classes, std::shared_ptr<Data> test_data) {
+    assert(test_data->getClassIdx() >= 0);
+    const unsigned classIndex = test_data->getClassIdx();
+
     auto faults = 0u;
     for(size_t i = 0u; i < classes.size(); ++i) {
-        if(classes[i]!= test_data->getRow(i)[57]) {
+        if(classes[i]!= test_data->getRow(i)[classIndex]) {
             ++faults;
         }
     }

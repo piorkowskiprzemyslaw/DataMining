@@ -1,5 +1,7 @@
 #include "DataLoader.h"
 
+#include "unistd.h"
+
 DataLoader::DataLoader(const std::string &classHeader)
     : m_classHeader(classHeader)
 { }

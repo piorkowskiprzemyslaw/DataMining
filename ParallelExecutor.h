@@ -7,16 +7,15 @@
 #include "AtomicHelper.h"
 
 /*
- * You can make you loop go multithreaded with:
+ * You can make your loop go multithreaded with:
  *
  * ParallelExecutor(beginIt, endIt) << yourFunction;
  *
- * Where yourFunction takes your iterator by value ( void(T) ).
- * Iterator can be an integral type, pointer or regular iterator.
- * It will be copied and incremented for each task. If possible
- * (integrals, pointers) atomic will be used for iterator, otherwise
- * mutex will guard its incrementation. You must assure that there
- * will be no race conditions in yourFunction by yourself.
+ * Where yourFunction takes your iterator by value ( void(T) ). Iterator can be
+ * an integral type, pointer or regular iterator. It will be copied and
+ * incremented for each task. If possible (integrals, pointers) atomic will be
+ * used for iterator, otherwise mutex will guard its incrementation. You must
+ * assure that there will be no race conditions in yourFunction by yourself.
  *
  */
 

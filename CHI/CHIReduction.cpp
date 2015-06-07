@@ -10,6 +10,7 @@
 
 namespace {
 
+// JSON style print for vector
 template <typename T>
 std::ostream & operator<<(std::ostream& stream, std::vector<T> data)
 {
@@ -62,10 +63,9 @@ CHIReduction::Matrix CHIReduction::calculateCHIMatrix() const
     assert(m_data->getClassIdx() >= 0);
     const unsigned classIndex = m_data->getClassIdx();
 
-    // Without class attribute
     Matrix resultMatrix(attributesNumber);
     // Quick test revealed that resize is faster (up to 2x) than providing default value
-    // in a construtor. It's much faster for big vectors.
+    // in a constructor. It's much faster for big vectors.
     for (decltype(resultMatrix.size()) i = 0u; i < resultMatrix.size(); ++i) {
         if (i != classIndex) {
             resultMatrix[i].resize(classNumber);
@@ -76,12 +76,11 @@ CHIReduction::Matrix CHIReduction::calculateCHIMatrix() const
 
     /* Calculating this values is thread safe on following conditions:
      * 1. Vector does not change it size (that's why it was resized before)
-     * 2. Each element is accessed only from the same thread - row is read concurrently
-     *    but that's fine it's read only. Threads are split on column, this way threads
-     *    write to only one element of result vector (one column).
-     *
+     * 2. Each element is accessed only from the same thread - row is read
+     *    concurrently but that's fine – it's read only. Threads are split on
+     *    column, this way threads write to only one element of result vector
+     *    (one column).
      */
-
     ParallelExecutor<unsigned>(0u, attributesNumber) << [this, classNumber, classIndex, &resultMatrix](const unsigned attribute) {
         if (attribute != classIndex) {
             // Holds values needed for calculating goodnessMeasure
@@ -91,7 +90,7 @@ CHIReduction::Matrix CHIReduction::calculateCHIMatrix() const
                 assert(row.size() == resultMatrix.size());
                 assert(row[classIndex] >= 0 && row[classIndex] == static_cast<unsigned>(row[classIndex]));
 
-                // We count occurences of class and terms
+                // We count occurences of classes and terms
                 const unsigned klass = row[classIndex];
                 const auto exists = row[attribute] > 0.0;
                 for (decltype(values.size()) i = 0u; i < values.size(); ++i) {
