@@ -32,11 +32,11 @@ public:
 private:
     using Matrix = std::vector<std::vector<double>>;
 
-    static constexpr inline double goodnessMeasure(unsigned total,
-                                                   unsigned tWithC,
-                                                   unsigned tWithoutC,
-                                                   unsigned cWithoutT,
-                                                   unsigned norTnorC) noexcept
+    static constexpr inline double goodnessMeasure(double total,
+                                                   double tWithC,
+                                                   double tWithoutC,
+                                                   double cWithoutT,
+                                                   double norTnorC) noexcept
     {
         return (total * (tWithC * norTnorC + tWithoutC * cWithoutT) * (tWithC * norTnorC + tWithoutC * cWithoutT))
              / ((tWithC + cWithoutT) * (tWithoutC + norTnorC) * (tWithC + tWithoutC) * (cWithoutT + norTnorC));

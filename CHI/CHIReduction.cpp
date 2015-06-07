@@ -10,6 +10,13 @@
 
 namespace {
 
+template <typename T, typename U>
+std::ostream & operator<<(std::ostream& stream, std::pair<T, U> data)
+{
+    stream << "{ " << data.first << ", " << data.second << " }";
+    return stream;
+}
+
 // JSON style print for vector
 template <typename T>
 std::ostream & operator<<(std::ostream& stream, std::vector<T> data)
@@ -38,11 +45,12 @@ std::vector<double> CHIReduction::reduce(ReductionMode mode)
 
     if (mode == ReductionMode::Maximum) {
         for (const auto & termValues: matrix) {
-            result.emplace_back((*std::max_element(termValues.cbegin(), termValues.cend())) > m_threshold);
+            result.emplace_back((*std::max_element(termValues.cbegin(), termValues.cend())) > (m_threshold * m_data->nRow()));
         }
     } else if (mode == ReductionMode::Average) {
+        auto probabilitiesIt = m_data->getClassProbability().cbegin();
         for (const auto & termValues: matrix) {
-            result.emplace_back((std::accumulate(termValues.cbegin(), termValues.cend(), 0.0) / termValues.size()) > m_threshold);
+            result.emplace_back((*(probabilitiesIt++) * (std::accumulate(termValues.cbegin(), termValues.cend(), 0.0) / termValues.size())) > (m_threshold * m_data->nRow()));
         }
     } else {
         LOG(ERROR) << "No such reduction mode";
@@ -119,6 +127,12 @@ CHIReduction::Matrix CHIReduction::calculateCHIMatrix() const
                                                              std::get<1>(values[i]),
                                                              std::get<2>(values[i]),
                                                              std::get<3>(values[i]));
+                LOG(MISC) << attribute << "," << i << ":"
+                           << std::get<0>(values[i]) << ","
+                           << std::get<1>(values[i]) << ","
+                           << std::get<2>(values[i]) << ","
+                           << std::get<3>(values[i]) << "->"
+                           << resultMatrix[attribute][i];
             }
         }
     };

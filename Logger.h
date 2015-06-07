@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <mutex>
 #include <sstream>
 
 // Implicit conversion to int is intended
@@ -42,6 +43,7 @@ public:
 
     ~Logger()
     {
+        std::lock_guard<std::mutex> lock(s_mutex);
         if (m_level <= logLevel()) {
             if (m_level <= WARNING) {
                 std::clog << m_buffer.rdbuf() << std::endl;
@@ -60,6 +62,7 @@ public:
 
 private:
     static unsigned s_currentLogLevel;
+    static std::mutex s_mutex;
 
     std::stringstream m_buffer;
     const unsigned m_level;
