@@ -26,4 +26,6 @@ HEADERS += \
     DFT/DFTReduction.h \
     MI/MIReduction.h \
     Logger.h \
-    CHI/CHIReduction.h
+    CHI/CHIReduction.h \
+    ParallelExecutor.h \
+    AtomicHelper.h

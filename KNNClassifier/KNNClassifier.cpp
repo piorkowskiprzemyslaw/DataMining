@@ -2,7 +2,9 @@
 
 #include <cassert>
 
-#include <thread>
+//#include <thread>
+
+#include "ParallelExecutor.h"
 
 KNNClassifier::KNNClassifier(std::shared_ptr<Data> trainData, const int k)
     : m_trainData(std::move(trainData))
@@ -32,7 +34,7 @@ std::vector<int> KNNClassifier::classifiy(const std::vector<double>& weights) co
         return classes;
     }
 
-    const auto classify = [this, &classes, &weights](const unsigned i) {
+    ParallelExecutor<size_t>(0u, testRowNumber) << [this, &classes, &weights](size_t i) {
         const auto &testRow = m_testData->getRow(i);
         std::priority_queue<std::pair<int, double>, std::vector<std::pair<int, double>>, PairCompare> pq;
 
@@ -42,17 +44,6 @@ std::vector<int> KNNClassifier::classifiy(const std::vector<double>& weights) co
         }
         classes[i] = getResultClass(pq);
     };
-
-    // TODO Use hardware_concurrency and do not spawn threads like crazy
-    // TODO Use main thread for calculating last chunk of processing
-    std::vector<std::thread> threads;
-    for(size_t i = 0; i < testRowNumber; ++i) {
-        threads.emplace_back(classify, i);
-    }
-
-    for (auto& thread : threads) {
-        thread.join();
-    }
 
     return classes;
 }

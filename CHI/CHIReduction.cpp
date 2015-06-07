@@ -6,6 +6,7 @@
 #include <thread>
 
 #include "Logger.h"
+#include "ParallelExecutor.h"
 
 namespace {
 
@@ -73,47 +74,6 @@ CHIReduction::Matrix CHIReduction::calculateCHIMatrix() const
         }
     }
 
-
-    const auto calculateValues = [this, classNumber, classIndex, &resultMatrix](const unsigned attribute) {
-        // Holds values needed for calculating goodnessMeasure
-        std::vector<std::tuple<unsigned, unsigned, unsigned, unsigned>> values(classNumber, {0, 0, 0, 0});
-
-        for (const auto &row : *m_data) {
-            assert(row.size() == resultMatrix.size());
-            assert(row[classIndex] >= 0 && row[classIndex] == static_cast<unsigned>(row[classIndex]));
-
-            // We count occurences of class and terms
-            const unsigned klass = row[classIndex];
-            const auto exists = row[attribute] > 0.0;
-            for (decltype(values.size()) i = 0u; i < values.size(); ++i) {
-                if (i != klass) {
-                    if (exists) {
-                        // Term exists but not with that class
-                        ++std::get<1>(values[i]);
-                    } else {
-                        // Nor class nor term exists
-                        ++std::get<3>(values[i]);
-                    }
-                } else {
-                    if (exists) {
-                        // Term and class exists
-                        ++std::get<0>(values[i]);
-                    } else {
-                        // Class exist but term does not
-                        ++std::get<2>(values[i]);
-                    }
-                }
-            }
-        }
-        for (decltype(values.size()) i = 0u; i < values.size(); ++i) {
-            resultMatrix[attribute][i] = goodnessMeasure(m_data->nRow(),
-                                                         std::get<0>(values[i]),
-                                                         std::get<1>(values[i]),
-                                                         std::get<2>(values[i]),
-                                                         std::get<3>(values[i]));
-        }
-    };
-
     /* Calculating this values is thread safe on following conditions:
      * 1. Vector does not change it size (that's why it was resized before)
      * 2. Each element is accessed only from the same thread - row is read concurrently
@@ -121,24 +81,48 @@ CHIReduction::Matrix CHIReduction::calculateCHIMatrix() const
      *    write to only one element of result vector (one column).
      *
      */
-    // TODO Use hardware_concurrency and do not spawn threads like crazy
-    std::vector<std::thread> threads;
-    threads.reserve(attributesNumber - 1);
 
-    for (auto i = 0u; i < attributesNumber - 1; ++i) {
-        if (i != classIndex) {
-            threads.emplace_back(calculateValues, i);
+    ParallelExecutor<unsigned>(0u, attributesNumber) << [this, classNumber, classIndex, &resultMatrix](const unsigned attribute) {
+        if (attribute != classIndex) {
+            // Holds values needed for calculating goodnessMeasure
+            std::vector<std::tuple<unsigned, unsigned, unsigned, unsigned>> values(classNumber, {0, 0, 0, 0});
+
+            for (const auto &row : *m_data) {
+                assert(row.size() == resultMatrix.size());
+                assert(row[classIndex] >= 0 && row[classIndex] == static_cast<unsigned>(row[classIndex]));
+
+                // We count occurences of class and terms
+                const unsigned klass = row[classIndex];
+                const auto exists = row[attribute] > 0.0;
+                for (decltype(values.size()) i = 0u; i < values.size(); ++i) {
+                    if (i != klass) {
+                        if (exists) {
+                            // Term exists but not with that class
+                            ++std::get<1>(values[i]);
+                        } else {
+                            // Nor class nor term exists
+                            ++std::get<3>(values[i]);
+                        }
+                    } else {
+                        if (exists) {
+                            // Term and class exists
+                            ++std::get<0>(values[i]);
+                        } else {
+                            // Class exist but term does not
+                            ++std::get<2>(values[i]);
+                        }
+                    }
+                }
+            }
+            for (decltype(values.size()) i = 0u; i < values.size(); ++i) {
+                resultMatrix[attribute][i] = goodnessMeasure(m_data->nRow(),
+                                                             std::get<0>(values[i]),
+                                                             std::get<1>(values[i]),
+                                                             std::get<2>(values[i]),
+                                                             std::get<3>(values[i]));
+            }
         }
-    }
-    // Last attribute is calculated on the main thread
-    // TODO If class is last attribute, main thread just waits.
-    if ((attributesNumber - 1) != classIndex) {
-        calculateValues(attributesNumber - 1);
-    }
-
-    for (auto &thread : threads) {
-        thread.join();
-    }
+    };
 
     return resultMatrix;
 }
