@@ -12,6 +12,9 @@
 
 class Data
 {
+public:
+    using RowType = std::vector<double>;
+
 private:
     std::string m_classAttributeHeader;
     int m_numberOfClasses = -1;
@@ -51,7 +54,7 @@ public:
 
     void normalization();
 
-    const std::vector<double>& getRow(size_t rowNumber) const;
+    const RowType& getRow(size_t rowNumber) const;
     // Iterate over rows
     auto begin() const -> decltype(m_dataMatrix.begin()) { return m_dataMatrix.begin(); }
     auto end() const -> decltype(m_dataMatrix.end()) { return m_dataMatrix.end(); }

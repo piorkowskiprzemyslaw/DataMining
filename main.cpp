@@ -1,12 +1,14 @@
 #include <cassert>
 
 #include <iostream>
+#include <random>
 #include <string>
 #include <cstring>
 
 #include "CHI/CHIReduction.h"
 #include "DFT/DFTReduction.h"
 #include "Data/Data.h"
+#include "Data/DataAdapter.h"
 #include "Data/DataLoader.h"
 #include "KNNClassifier/KNNClassifier.h"
 #include "MI/MIReduction.h"
@@ -18,6 +20,8 @@ enum RUNMODE {
     RM_CHI = 8,
     RM_K = 16
 };
+
+using namespace std;
 
 template<typename T>
 std::shared_ptr<Data> loadData(T &&dataLoader, const std::string &fileName, bool readHeaders) {
@@ -143,6 +147,17 @@ int main(int argc, char* argv[])
     const auto test_data = loadData(dataLoader, TEST_FILE_NAME, READ_HEADERS);
     test_data->computeParameters();
 
+    // to go full random use random_device
+    //std::random_device rd;
+    std::mt19937 gen/*(rd())*/;
+    std::uniform_real_distribution<> dis(0, 1);
+    DataAdapter adapter(test_data, [&](const Data::RowType &) {
+        // 33% chance that the item will be picked should result in random 1/3 split (?)
+        return dis(gen) < (1.0/3.0);
+    });
+
+    std::cout << "From " << test_data->nRow() << " picked " << adapter.nRow() << std::endl;
+
     KNNClassifier classif(train_data, K);
     classif.setTestData(test_data);
 
@@ -160,6 +175,8 @@ int main(int argc, char* argv[])
         DFTReduction dft(train_data);
         dft.setTreshold(DFT_TRESHOLD);
         const std::vector<double> w2 = dft.reduceAttributes();
+
+        cout << w2.size() << endl;
         const auto classes_dft = classif.classifiy(w2);
         printQuality(classes_dft, test_data);
     }
@@ -171,6 +188,7 @@ int main(int argc, char* argv[])
         mi.setTreshold(MI_TRESHOLD);
         const std::vector<double> w3 = mi.reduceAttributes();
         const auto classes_mi = classif.classifiy(w3);
+        cout << w3.size() << endl;
         printQuality(classes_mi, test_data);
     }
     if (ALGORITHMS & RM_CHI){
@@ -179,6 +197,7 @@ int main(int argc, char* argv[])
         CHIReduction chi(train_data);
         chi.setThreshold(CHI_THRESHOLD);
         const auto w4 = chi.reduce(CHI_REDUCTION_TYPE);
+        cout << w4.size() << endl;
         const auto classes_chi = classif.classifiy(w4);
         printQuality(classes_chi, test_data);
     }

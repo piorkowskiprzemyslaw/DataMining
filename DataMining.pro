@@ -17,7 +17,8 @@ SOURCES += main.cpp \
     DFT/DFTReduction.cpp \
     MI/MIReduction.cpp \
     Logger.cpp \
-    CHI/CHIReduction.cpp
+    CHI/CHIReduction.cpp \
+    Data/DataAdapter.cpp
 
 HEADERS += \
     Data/Data.h \
@@ -28,4 +29,5 @@ HEADERS += \
     Logger.h \
     CHI/CHIReduction.h \
     ParallelExecutor.h \
-    AtomicHelper.h
+    AtomicHelper.h \
+    Data/DataAdapter.h
