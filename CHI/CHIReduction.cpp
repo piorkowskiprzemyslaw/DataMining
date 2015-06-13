@@ -92,7 +92,7 @@ CHIReduction::Matrix CHIReduction::calculateCHIMatrix() const
     ParallelExecutor<unsigned>(0u, attributesNumber) << [this, classNumber, classIndex, &resultMatrix](const unsigned attribute) {
         if (attribute != classIndex) {
             // Holds values needed for calculating goodnessMeasure
-            std::vector<std::tuple<unsigned, unsigned, unsigned, unsigned>> values(classNumber, {0, 0, 0, 0});
+            std::vector<std::tuple<unsigned, unsigned, unsigned, unsigned>> values(classNumber, std::make_tuple(0, 0, 0, 0));
 
             for (const auto &row : *m_data) {
                 assert(row.size() == resultMatrix.size());

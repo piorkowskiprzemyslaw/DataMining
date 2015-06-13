@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cmath>
-
+#include <memory>
+#include <algorithm>
 #include "Data/Data.h"
 
 class CHIReduction

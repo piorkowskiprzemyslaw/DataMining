@@ -7,6 +7,7 @@
 #include <set>
 #include <utility>
 #include <vector>
+#include <memory>
 
 #include "Logger.h"
 

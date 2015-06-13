@@ -7,6 +7,7 @@
 #include <locale>
 #include <sstream>
 #include <vector>
+#include <memory>
 
 #include "Data/Data.h"
 
