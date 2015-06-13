@@ -53,7 +53,7 @@ void Data::setMinMaxValues(const std::vector<std::pair<double, double>> &minMaxV
     m_minMaxValues = minMaxValues;
 }
 
-const std::vector<std::pair<double, double>>& Data::getMinMaxValues()
+const std::vector<std::pair<double, double>>& Data::getMinMaxValues() const
 {
     return m_minMaxValues;
 }

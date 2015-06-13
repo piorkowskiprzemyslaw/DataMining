@@ -5,7 +5,7 @@
 #include <cmath>
 #include <climits>
 
-#include "Data/Data.h"
+#include "Data/DataAdapter.h"
 
 enum class MIReductionType {
     AVG,
@@ -22,7 +22,7 @@ private:
      */
     enum Param : int { A = 0, B = 1, C = 2 };
 
-    const std::shared_ptr<const Data> m_train_data;
+    const std::shared_ptr<const DataAdapter> m_train_data;
     std::vector<std::vector<std::vector<unsigned int>>> m_parameters;
     std::vector<std::vector<double>> m_miMatrix;
     unsigned int m_classIdx;
@@ -38,12 +38,12 @@ private:
     void printWeights(const std::vector<double>& weights)
     {
         for(const auto &weight : weights) {
-            LOG(INFO) << weight;
+            LOG(DEBUG) << weight;
         }
     }
 
 public:
-    explicit MIReduction(const std::shared_ptr<const Data> train_data);
+    explicit MIReduction(const std::shared_ptr<const DataAdapter> train_data);
     void setReductionType(const MIReductionType type);
     void setTreshold(double treshold);
     const std::vector<double> reduceAttributes();

@@ -51,7 +51,7 @@ public:
 
     void computeMinMaxValues();
     void setMinMaxValues(const std::vector<std::pair<double, double>>& minMaxValues);
-    const std::vector<std::pair<double, double>>& getMinMaxValues();
+    const std::vector<std::pair<double, double>>& getMinMaxValues() const;
 
     void normalization();
 

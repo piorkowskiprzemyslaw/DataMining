@@ -1,15 +1,15 @@
 #pragma once
 
 #include <istream>
-#include "Data/Data.h"
+#include "Data/DataAdapter.h"
 
 class DFTReduction
 {
 private:
-    const std::shared_ptr<const Data> m_train_data;
+    const std::shared_ptr<const DataAdapter> m_train_data;
     double m_treshold;
 public:
-    explicit DFTReduction(const std::shared_ptr<const Data> train_data);
+    explicit DFTReduction(const std::shared_ptr<const DataAdapter> train_data);
     void setTreshold(const double treshold);
     std::vector<double> reduceAttributes();
 };

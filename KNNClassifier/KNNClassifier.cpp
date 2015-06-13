@@ -6,20 +6,16 @@
 
 #include "ParallelExecutor.h"
 
-KNNClassifier::KNNClassifier(std::shared_ptr<Data> trainData, const int k)
+KNNClassifier::KNNClassifier(std::shared_ptr<const DataAdapter> trainData, const int k)
     : m_trainData(std::move(trainData))
     , m_k(k)
 {
-    m_trainData->computeMinMaxValues();
-    m_trainData->normalization();
     m_classIdx = m_trainData->getClassIdx();
 }
 
-void KNNClassifier::setTestData(std::shared_ptr<Data> testData)
+void KNNClassifier::setTestData(std::shared_ptr<const DataAdapter> testData)
 {
     m_testData = std::move(testData);
-    m_testData->setMinMaxValues(m_trainData->getMinMaxValues());
-    m_testData->normalization();
 }
 
 std::vector<int> KNNClassifier::classifiy(const std::vector<double>& weights) const

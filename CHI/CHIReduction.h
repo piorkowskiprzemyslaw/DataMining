@@ -3,7 +3,8 @@
 #include <cmath>
 #include <memory>
 #include <algorithm>
-#include "Data/Data.h"
+
+#include "Data/DataAdapter.h"
 
 class CHIReduction
 {
@@ -14,11 +15,11 @@ public:
         Maximum
     };
 
-    explicit CHIReduction(std::shared_ptr<const Data> &&data) noexcept
+    explicit CHIReduction(std::shared_ptr<const DataAdapter> &&data) noexcept
         : CHIReduction(data)
     { }
 
-    explicit CHIReduction(const std::shared_ptr<const Data> &data) noexcept
+    explicit CHIReduction(const std::shared_ptr<const DataAdapter> &data) noexcept
         : m_data(data)
         , m_threshold(0.0)
     { }
@@ -45,6 +46,6 @@ private:
 
     Matrix calculateCHIMatrix() const;
 
-    const std::shared_ptr<const Data> m_data;
+    const std::shared_ptr<const DataAdapter> m_data;
     double m_threshold;
 };

@@ -6,7 +6,7 @@
 #include <queue>
 #include <map>
 #include <cmath>
-#include "Data/Data.h"
+#include "Data/DataAdapter.h"
 
 struct PairCompare
 {
@@ -20,8 +20,8 @@ class KNNClassifier
 {
 private:
     std::string m_classHeader;
-    std::shared_ptr<Data> m_trainData;
-    std::shared_ptr<Data> m_testData;
+    std::shared_ptr<const DataAdapter> m_trainData;
+    std::shared_ptr<const DataAdapter> m_testData;
     int m_k;
     size_t m_classIdx;
 
@@ -31,8 +31,8 @@ private:
     int getResultClass(std::priority_queue<std::pair<int, double>,
                        std::vector<std::pair<int, double> >, PairCompare> &pq) const;
 public:
-    KNNClassifier(std::shared_ptr<Data> trainData, const int k);
-    void setTestData(std::shared_ptr<Data> testData);
+    KNNClassifier(std::shared_ptr<const DataAdapter> trainData, const int k);
+    void setTestData(std::shared_ptr<const DataAdapter> testData);
     std::vector<int> classifiy(const std::vector<double>& weights) const;
 };
 

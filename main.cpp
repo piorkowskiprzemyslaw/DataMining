@@ -33,7 +33,7 @@ std::shared_ptr<Data> loadData(T &&dataLoader, const std::string &fileName, bool
     return dataLoader.loadData();
 }
 
-void printNumberOfFaults(const std::vector<int>& classes, std::shared_ptr<Data> test_data) {
+void printNumberOfFaults(const std::vector<int>& classes, std::shared_ptr<const DataAdapter> test_data) {
     assert(test_data->getClassIdx() >= 0);
     const unsigned classIndex = test_data->getClassIdx();
 
@@ -46,7 +46,7 @@ void printNumberOfFaults(const std::vector<int>& classes, std::shared_ptr<Data> 
     std::cout << "Faults : " << faults << std::endl;
 }
 
-void printQuality(const std::vector<int>& classes, std::shared_ptr<Data> test_data) {
+void printQuality(const std::vector<int>& classes, std::shared_ptr<const DataAdapter> test_data) {
     auto faults = 0u;
     auto true_positive = 0u;
     auto true_negative = 0u;
@@ -101,6 +101,8 @@ int main(int argc, char* argv[])
     double CHI_THRESHOLD = 0.2;
     //program mode
     unsigned ALGORITHMS = RM_DEF;
+    // cross-validation
+    unsigned CV = 3u;
 
 
     for( int i = 1 ; i < argc ; ++i){
@@ -138,68 +140,91 @@ int main(int argc, char* argv[])
         } else if( strcmp(argv[i], "-CHI") == 0 ) {
             CHI_THRESHOLD = std::stod(argv[++i]);
             ALGORITHMS |= RM_CHI;
+        } else if( strcmp(argv[i], "-CV") == 0 ) {
+            CV = std::stoi(argv[++i]);
         }
     }
 
     DataLoader dataLoader(CLASS_NAME);
-    const auto train_data = loadData(dataLoader, TRAIN_FILE_NAME, READ_HEADERS);
-    train_data->computeParameters();
-    const auto test_data = loadData(dataLoader, TEST_FILE_NAME, READ_HEADERS);
-    test_data->computeParameters();
+    const auto data = loadData(dataLoader, TRAIN_FILE_NAME, READ_HEADERS);
+    data->computeParameters();
+    data->computeMinMaxValues();
+    data->normalization();
 
     // to go full random use random_device
     //std::random_device rd;
     std::mt19937 gen/*(rd())*/;
     std::uniform_real_distribution<> dis(0, 1);
-    DataAdapter adapter(test_data, [&](const Data::RowType &) {
-        // 33% chance that the item will be picked should result in random 1/3 split (?)
-        return dis(gen) < (1.0/3.0);
-    });
 
-    std::cout << "From " << test_data->nRow() << " picked " << adapter.nRow() << std::endl;
-
-    KNNClassifier classif(train_data, K);
-    classif.setTestData(test_data);
-
-    if (ALGORITHMS & RM_K){
-        // without reduction
-        LOG(INFO) << "kNN:";
-        const std::vector<double> w1(test_data->nAttributes(), 1.0);
-        const auto classes = classif.classifiy(w1);
-        printQuality(classes,test_data);
+    // generate splits
+    std::vector<std::shared_ptr<DataAdapter>> adapters;
+    {
+        adapters.reserve(CV);
+        auto leftPart = std::make_shared<DataAdapter>(data, [](const Data::RowType &){return true;});
+        for (auto split = CV; split > 1; --split) {
+            adapters.emplace_back(std::make_shared<DataAdapter>(*leftPart, [&](const Data::RowType &) {
+                // 33% chance that the item will be picked should result in random 1/3 split (?)
+                return dis(gen) < (1.0/split);
+            }));
+            leftPart->remove(*adapters.back());
+        }
+        adapters.emplace_back(std::move(leftPart));
     }
 
-    if (ALGORITHMS & RM_DFT){
-        // dft reduction
-        LOG(INFO) << "DFT:";
-        DFTReduction dft(train_data);
-        dft.setTreshold(DFT_TRESHOLD);
-        const std::vector<double> w2 = dft.reduceAttributes();
+    LOG(DEBUG) << "From " << data->nRow() << " picked:" << std::endl;
+    for (const auto &adapter : adapters) {
+        LOG(DEBUG) << adapter->nRow() << ": " << adapter->indices();
+    }
 
-        cout << w2.size() << endl;
-        const auto classes_dft = classif.classifiy(w2);
-        printQuality(classes_dft, test_data);
-    }
-    if (ALGORITHMS & RM_MI){
-        // mi reduction
-        LOG(INFO) << "MI:";
-        MIReduction mi(train_data);
-        mi.setReductionType(MI_REDUCTION_TYPE);
-        mi.setTreshold(MI_TRESHOLD);
-        const std::vector<double> w3 = mi.reduceAttributes();
-        const auto classes_mi = classif.classifiy(w3);
-        cout << w3.size() << endl;
-        printQuality(classes_mi, test_data);
-    }
-    if (ALGORITHMS & RM_CHI){
-        // chi reduction
-        LOG(INFO) << "CHI:";
-        CHIReduction chi(train_data);
-        chi.setThreshold(CHI_THRESHOLD);
-        const auto w4 = chi.reduce(CHI_REDUCTION_TYPE);
-        cout << w4.size() << endl;
-        const auto classes_chi = classif.classifiy(w4);
-        printQuality(classes_chi, test_data);
+    for (auto part = 0u; part < CV; ++part) {
+
+        std::cout << "== Split " << 1+part << "/" << CV << " ==" << std::endl;
+        const auto & test_data = adapters[part];
+        const auto train_data = std::make_shared<DataAdapter>(*test_data);
+        train_data->invert();
+
+        KNNClassifier classif(train_data, K);
+        classif.setTestData(test_data);
+
+        if (ALGORITHMS & RM_K){
+            // without reduction
+            std::cout << "* kNN" << std::endl;
+            const std::vector<double> w1(test_data->nAttributes(), 1.0);
+            const auto classes = classif.classifiy(w1);
+            printQuality(classes,test_data);
+        }
+
+        if (ALGORITHMS & RM_DFT){
+            // dft reduction
+            std::cout << "* DFT" << std::endl;
+            DFTReduction dft(train_data);
+            dft.setTreshold(DFT_TRESHOLD);
+            const std::vector<double> w2 = dft.reduceAttributes();
+            std::cout << "Picked " << std::accumulate(w2.cbegin(), w2.cend(), 0u) << " attributes" << std::endl;
+            const auto classes_dft = classif.classifiy(w2);
+            printQuality(classes_dft, test_data);
+        }
+        if (ALGORITHMS & RM_MI){
+            // mi reduction
+            std::cout << "* MI" << std::endl;
+            MIReduction mi(train_data);
+            mi.setReductionType(MI_REDUCTION_TYPE);
+            mi.setTreshold(MI_TRESHOLD);
+            const std::vector<double> w3 = mi.reduceAttributes();
+            std::cout << "Picked " << std::accumulate(w3.cbegin(), w3.cend(), 0u) << " attributes" << std::endl;
+            const auto classes_mi = classif.classifiy(w3);
+            printQuality(classes_mi, test_data);
+        }
+        if (ALGORITHMS & RM_CHI){
+            // chi reduction
+            std::cout << "* CHI" << std::endl;
+            CHIReduction chi(train_data);
+            chi.setThreshold(CHI_THRESHOLD);
+            const auto w4 = chi.reduce(CHI_REDUCTION_TYPE);
+            std::cout << "Picked " << std::accumulate(w4.cbegin(), w4.cend(), 0u) << " attributes" << std::endl;
+            const auto classes_chi = classif.classifiy(w4);
+            printQuality(classes_chi, test_data);
+        }
     }
 
     return 0;

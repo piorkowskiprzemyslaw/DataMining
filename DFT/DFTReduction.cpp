@@ -2,7 +2,7 @@
 
 #include <cassert>
 
-DFTReduction::DFTReduction(const std::shared_ptr<const Data> train_data)
+DFTReduction::DFTReduction(const std::shared_ptr<const DataAdapter> train_data)
     : m_train_data(std::move(train_data))
 { }
 

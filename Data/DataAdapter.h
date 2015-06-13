@@ -11,12 +11,12 @@ class DataAdapter
 private:
     void calculateAdaptationVector(const std::function<bool(const Data::RowType &)> &adapter);
 
-    void computeMinMaxValues() const;
+//    void computeMinMaxValues() const;
     void computeClassProbabilities() const;
 
-    const std::shared_ptr<const Data> m_data;
+    std::shared_ptr<const Data> m_data;
     std::vector<size_t> m_indices;
-    mutable std::vector<std::pair<double, double>> m_minMaxValues;
+//    mutable std::vector<std::pair<double, double>> m_minMaxValues;
     mutable std::vector<double> m_classProbabilities;
 
 public:
@@ -70,13 +70,27 @@ public:
         {
             return m_adapter->m_data->getRow(*m_indexIt);
         }
-
     };
 
     DataAdapter(const std::shared_ptr<const Data> &data, const std::function<bool(const Data::RowType &)> &adapter)
         : m_data(data)
     {
         calculateAdaptationVector(adapter);
+    }
+
+    DataAdapter(const DataAdapter &other, const std::function<bool(const Data::RowType &)> &adapter)
+        : m_data(other.m_data)
+    {
+        //TODO make it better
+        auto counter = 0u;
+        auto indexIt = other.m_indices.cbegin();
+        calculateAdaptationVector([&](const Data::RowType &row){
+            if (indexIt != other.m_indices.cend() && (*indexIt == counter++)) {
+                ++indexIt;
+                return adapter(row);
+            }
+            return false;
+        });
     }
 
     DataAdapter(std::shared_ptr<const Data> &&data, const std::function<bool(const Data::RowType &)> &adapter)
@@ -95,6 +109,10 @@ public:
 
     friend std::ostream & operator<<(std::ostream &, const DataAdapter &);
     void printData() const;
+    // debug only
+    const std::vector<size_t> & indices() const {
+        return m_indices;
+    }
 
     inline const Data::RowType& getRow(size_t rowNumber) const { return m_data->getRow(m_indices[rowNumber]); }
     // Iterate over rows
@@ -103,14 +121,18 @@ public:
     const_iterator cbegin() const { return const_iterator(this, m_indices.cbegin()); }
     const_iterator cend() const { return const_iterator(this, m_indices.cend()); }
 
-    const std::string& getClassAttributeHeader() const { return m_data->getClassAttributeHeader(); }
-    int getClassIdx() const { return m_data->getClassIdx(); }
+    inline const std::string& getClassAttributeHeader() const { return m_data->getClassAttributeHeader(); }
+    inline int getClassIdx() const { return m_data->getClassIdx(); }
     inline size_t nRow() const noexcept(noexcept(m_indices.size())) { return m_indices.size(); }
-    size_t nAttributes() const { return m_data->nRow(); }
+    inline size_t nAttributes() const { return m_data->nAttributes(); }
 
-    const std::set<int> getClassesValues() const { return m_data->getClassesValues(); }
-    int getNumberOfClasses() const { return m_data->getNumberOfClasses(); }
+    inline const std::set<int> getClassesValues() const { return m_data->getClassesValues(); }
+    inline int getNumberOfClasses() const { return m_data->getNumberOfClasses(); }
 
     const std::vector<double> & getClassProbability() const;
-    const std::vector<std::pair<double, double>> & getMinMaxValues() const;
+    const std::vector<std::pair<double, double>> & getMinMaxValues() const { return m_data->getMinMaxValues(); };
+
+    void join(const DataAdapter &);
+    void remove(const DataAdapter &);
+    void invert();
 };

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <mutex>
 #include <sstream>
+#include <vector>
 
 // Implicit conversion to int is intended
 enum LogLevels {
@@ -69,4 +70,28 @@ private:
 };
 
 #define LOG(level) Logger(__FILE__, __LINE__, level).stream()
+
+template <typename T, typename U>
+std::ostream & operator<<(std::ostream& stream, std::pair<T, U> data)
+{
+    stream << "{ " << data.first << ", " << data.second << " }";
+    return stream;
+}
+
+// JSON style print for vector
+template <typename T>
+std::ostream & operator<<(std::ostream& stream, std::vector<T> data)
+{
+    if (!data.empty()) {
+        stream << "[ ";
+        auto end = data.size() - 1;
+        for (decltype(data.size()) i = 0u; i < end; ++i) {
+            stream << data[i] << ", ";
+        }
+        stream << data[end] << " ]";
+    } else {
+        stream << "[]";
+    }
+    return stream;
+}
 
