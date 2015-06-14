@@ -1,5 +1,6 @@
 \select@language {USenglish}
 \contentsline {chapter}{\numberline {1}Introduction}{2}
-\contentsline {chapter}{\numberline {2}Algorithms implementation}{3}
-\contentsline {chapter}{\numberline {3}Experiments}{6}
-\contentsline {chapter}{\numberline {4}Conclusions}{9}
+\contentsline {chapter}{\numberline {2}Project Structure}{3}
+\contentsline {chapter}{\numberline {3}Algorithms implementation}{4}
+\contentsline {chapter}{\numberline {4}Experiments}{7}
+\contentsline {chapter}{\numberline {5}Conclusions}{10}

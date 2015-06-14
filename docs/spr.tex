@@ -15,7 +15,16 @@ The project objective is to implement single classification algorithm and severa
 
 Basing on the document provided by project's Supervisor and the initial research the Team decided to implement three types of the feature reduction algorithms: Document Frequency Thresholding (DFT), Mutual Information (MI) and \({\chi}^2\) statistic (CHI). As a classification algorithm the k-nearest neighbors (kNN) method was chosen. The Team decided to use the C++ programming language for implementation purposes.
 
-The source data set: SPAM E-mail Database, consists of 4601 instances of e-mails. Each e-mail is considered either as a spam or not. Classification is based on 57 continuous attributes denoting particular words and characters frequency as well as lengths of uninterrupted sequences of capital letters in a message. The data set does not have any missing attribute values.
+The source data set: SPAM E-mail Database, consists of 4601 instances of e-mails. Each e-mail is considered either as a spam or not. Classification is based on 57 continuous attributes denoting particular words and characters frequency as well as lengths of uninterrupted sequences of capital letters in a message. The data set does not have any missing attribute values. Attributes were normalized with knowledge of attributes values meaning, for example, 54 attributes denotes words and characters frequency - each of these values were divided by 100. For continuous attributes min-max normalization was applied.
+
+\chapter{Project Structure}
+Source code of project is simply organized. Project root includes \textit{main.cpp} file which contains \textit{main} function - application starting point. Alongside to \textit{main.cpp} file there are also sources of some utility classes and structures. 
+
+\textit{Data} folder holds implementation of classes providing abstraction for datasets loading, reading and manipulation. Support for creating datasets for cross validation is also implemented in this directory.
+
+\textit{CHI}, \textit{DFT} and \textit{MI} folders holds implementation of feature reduction algorithms for respectively CHI reduction,  Document Frequency Thresholding and Mutual Information. More detailed information about algorithms implementation are described in next chapter.
+
+\textit{KNNClassifier} folder holds implementation of KNN classifier algorithm. It is standard KNN implementation. To simplify comparison of different feature reduction algorithms this implementation takes as parameter array of doubles values. Each value represents weight of corresponding feature. This design implies that feature reduction is preformed simply by set reduced feature weight to 0.
 
 \chapter{Algorithms implementation}
 DFT thresholding is the simplest technique for attribute
@@ -64,7 +73,7 @@ The developed project application can be run with given parameters:
   \item \texttt{-MI\_MAX} - switches on MAX score calculation for MI algorithm
   \item \texttt{-MI\_AVG} - switches on AVG score calculation for MI algorithm
   \item \texttt{-MI miThreshold} - treshold for MI algorithm
-  \item \texttt{-l verbosityLevel}  - value <1,5>
+  \item \texttt{-l verbosityLevel}  - value [1,2,3,4,5]
   \item \texttt{-CHI\_MAX}- switches on MAX score calculation for CHI algorithm
   \item \texttt{-CHI\_AVG}- switches on AVG score calculation for CHI algorithm
   \item \texttt{-CHI chiThreshold} - treshold for CHI algorithm
