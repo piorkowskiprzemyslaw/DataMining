@@ -26,7 +26,7 @@ or not influential in global performance.
 
 
 
-MI tries to measure the influence of existence of particular attribute/term on a given class value. If one considers the twoway contingency table of a term t and a category c, where A is the number of times t and c co-occur, B is the number of time the t occurs without c, C is number of times c occurs without t, and N is the total number of documents, then the mutual information criterion between t and c is estimated using formula:
+MI tries to measure the influence of existence of particular attribute/term on a given class value. If one considers the two way contingency table of a term t and a category c, where A is the number of times t and c co-occur, B is the number of time the t occurs without c, C is number of times c occurs without t, and N is the total number of documents, then the mutual information criterion between t and c is estimated using formula:
 
 \includegraphics[scale=0.8]{MI1}
 
@@ -36,7 +36,7 @@ I(t ,c) equal to zero means that attribute/term t and category c are independent
 
 
 
-The \({\chi}^2\) statistic measures the lack of independence between an attribute t and a class c. Similarly to MI algorithm utilizes the twoway contingency table with an additional value D, which equals to case when neither c nor t occurs. The term-goodness is calculated with a given formula:
+The \({\chi}^2\) statistic measures the lack of independence between an attribute t and a class c. Similarly to MI algorithm utilizes the two way contingency table with an additional value D, which equals to case when neither c nor t occurs. The term-goodness is calculated with a given formula:
 
 \includegraphics[scale=0.8]{CHI1}
 
@@ -54,20 +54,20 @@ The kNN algorithm is implemented in the \textbf{KNNClassifier} class. There were
 
 The developed project application can be run with given parameters:
 \begin{itemize}
-  \item \texttt{-ftrain trainFileName}
-  \item \texttt{-ftest testFileName}
-  \item \texttt{-h} - switch for reading headers of a source file
-  \item \texttt{-cname className}
+  \item \texttt{-ftrain trainFileName} - csv file name containing train dataset
+  \item \texttt{-ftest testFileName} - csv file name containing test dataset
+  \item \texttt{-h [TRUE,FALSE]} - switch for reading headers of a source file
+  \item \texttt{-cname className} - class attribute header
   \item \texttt{-k value}
   \item \texttt{-CV value} - number of iterations/folds of cross valdiation
-  \item \texttt{-DFT dftThreshold}
+  \item \texttt{-DFT dftThreshold} - treshold for DFT algorithm
   \item \texttt{-MI\_MAX} - switches on MAX score calculation for MI algorithm
   \item \texttt{-MI\_AVG} - switches on AVG score calculation for MI algorithm
-  \item \texttt{-MI miThreshold}
-  \item \texttt{-l verbosityLevel}
+  \item \texttt{-MI miThreshold} - treshold for MI algorithm
+  \item \texttt{-l verbosityLevel}  - value <1,5>
   \item \texttt{-CHI\_MAX}- switches on MAX score calculation for CHI algorithm
   \item \texttt{-CHI\_AVG}- switches on AVG score calculation for CHI algorithm
-  \item \texttt{-CHI chiThreshold}
+  \item \texttt{-CHI chiThreshold} - treshold for CHI algorithm
 \end{itemize}
 
 \chapter{Experiments}
