@@ -26,7 +26,7 @@ or not influential in global performance.
 
 
 
-MI tries to measure the influence of existence of particular attribute/term on a given class value. If one considers the two way contingency table of a term t and a category c, where A is the number of times t and c co-occur, B is the number of time the t occurs without c, C is number of times c occurs without t, and N is the total number of documents, then the mutual information criterion between t and c is estimated using formula:
+MI tries to measure the influence of existence of particular attribute/term on a given class value. If one considers the twoway contingency table of a term t and a category c, where A is the number of times t and c co-occur, B is the number of time the t occurs without c, C is number of times c occurs without t, and N is the total number of documents, then the mutual information criterion between t and c is estimated using formula:
 
 \includegraphics[scale=0.8]{MI1}
 
@@ -50,36 +50,42 @@ The project implements three feature reduction algorithms within 3 classes:
   \item DFTReduction
   \item MIReduction
 \end{itemize}
-The kNN algorithm is implemented in the \textbf{KNNClassifier} class. There were developed additional classes for data loading and data interpretation: \textbf{DataLoader}, \textbf{Data}. There is the \textbf{Logger} class for debugging and echoing purposes. There is the class supporting multithreading  for parallelization capabilities: \textbf{ParallelExecutor} with a support of \emph{AtomicIfPossible} and \emph{AtomicInternal} classes.
+The kNN algorithm is implemented in the \textbf{KNNClassifier} class. There were developed additional classes for data loading and data interpretation: \textbf{DataLoader}, \textbf{Data}. \textbf{DataAdapter} class is used to iterate over data in function defined manner. There is the \textbf{Logger} class for debugging and echoing purposes. There is the class supporting multithreading  for parallelization capabilities: \textbf{ParallelExecutor} with a support of \emph{AtomicIfPossible} and \emph{AtomicInternal} classes.
 
 The developed project application can be run with given parameters:
 \begin{itemize}
-  \item \texttt{-ftrain trainFileName} - csv file name containing train dataset
-  \item \texttt{-ftest testFileName} - csv file name containing test dataset
-  \item \texttt{-h [TRUE,FALSE]} - switch for reading headers of a source file
-  \item \texttt{-cname className} - class attribute header
+  \item \texttt{-ftrain trainFileName}
+  \item \texttt{-ftest testFileName}
+  \item \texttt{-h} - switch for reading headers of a source file
+  \item \texttt{-cname className}
   \item \texttt{-k value}
-  \item \texttt{-DFT dftThreshold} - treshold for DFT algorithm
-  \item \texttt{-MI\_MAX value} - switches on MAX score calculation for MI algorithm
+  \item \texttt{-CV value} - number of iterations/folds of cross valdiation
+  \item \texttt{-DFT dftThreshold}
+  \item \texttt{-MI\_MAX} - switches on MAX score calculation for MI algorithm
   \item \texttt{-MI\_AVG} - switches on AVG score calculation for MI algorithm
-  \item \texttt{-MI miThreshold} - treshold for MI algorithm
-  \item \texttt{-l verbosityLevel} - value <1,5>
+  \item \texttt{-MI miThreshold}
+  \item \texttt{-l verbosityLevel}
   \item \texttt{-CHI\_MAX}- switches on MAX score calculation for CHI algorithm
   \item \texttt{-CHI\_AVG}- switches on AVG score calculation for CHI algorithm
-  \item \texttt{-CHI chiThreshold} - treshold for CHI algorithm
+  \item \texttt{-CHI chiThreshold}
 \end{itemize}
 
 \chapter{Experiments}
-The source data set was arbitrary divided into 2 subsets: the training set and the test set. At the beggining classifier was used to build a model with the training set. kNN implementation has one control parameter - the number of neighbors voting. For evaluation purposes this k-value was set to 5.
-The influence of each feature reduction algorithm on the kNN classification method was measured with precission and recall values. These quality measures were compared with the results of classification without feature reduction against the test set.
 
-\includegraphics[scale=1]{exp_precission_of_4}
+In order to validate implemented algorithms against the data set the \emph{7-fold Cross-validation} method was used (\texttt{-CV 7}). kNN implementation has one control parameter - the number of neighbors voting. For evaluation purposes this k-value was set to 5.
+The influence of each feature reduction algorithm on the kNN classification method was measured with precission and recall values. Scores were calculated as a geometric mean of values obtained from each round of the cross validation.  These quality measures were compared with the results of classification without feature reduction. Number of attributes was controlled with picked threshold values.
 
-\includegraphics[scale=1]{exp_recall_of_4}
+\includegraphics[scale=1]{DFTscores}
 
-\includegraphics[scale=1]{exp_of_chi_avg}
+\includegraphics[scale=1]{MIMAXscores}
+
+\includegraphics[scale=1]{MIAVGscores}
+
+\includegraphics[scale=1]{CHIMAXscores}
+
+\includegraphics[scale=1]{CHIAVGscores}
 
 \chapter{Conclusions}
-The results are interesting. The application of each feature reduction method (without CHI\_AVG) on the given data set gave slight precission gain for lower threshold values. For MI\_MAX method even applying threshold of value 0.50 did not decrease overall precission. MI\_MAX, MI\_AVG and CHI\_MAX show meaningful precission drop for specific thresholds. For the DFT the fall of recall and precission with growing threshold is smooth - it is more stable algorithm. The recall curves for all methods but DFT are rising while precission is falling. Considering precisssion gains for lower threshold it has been shown that MI\_MAX algorithm should be chosen. The DFT algorithm would be good for reducing the higher number of attributes.
+The results are interesting. The application of DFT, CHI\_MAX and MI\_MAX on the given data set gave slight precission gain when less than a half of attributes were cut. The DFT method achieved high precission and recall scores even with 3 attributes left - it is a great result for a such simple algorithm. CHI\_MAX and CHI\_AVG methods marked comparable - good overall results. Mutual Inforamtion (MI) methods showed worse results for aggresive feature reduction.
 
 \end{document}
